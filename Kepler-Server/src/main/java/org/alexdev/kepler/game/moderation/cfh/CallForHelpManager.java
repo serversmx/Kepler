@@ -7,7 +7,7 @@ import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.messages.outgoing.moderation.CALL_FOR_HELP;
 import org.alexdev.kepler.messages.outgoing.moderation.DELETE_CRY;
 import org.alexdev.kepler.messages.outgoing.moderation.PICKED_CRY;
-import org.alexdev.kepler.messages.outgoing.user.CRY_RECEIVED;
+import org.alexdev.kepler.messages.outgoing.moderation.CRY_RECEIVED;
 import org.alexdev.kepler.messages.types.MessageComposer;
 import org.alexdev.kepler.util.DateUtil;
 
