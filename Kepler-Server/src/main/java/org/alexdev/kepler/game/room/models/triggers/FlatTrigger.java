@@ -2,7 +2,6 @@ package org.alexdev.kepler.game.room.models.triggers;
 
 import org.alexdev.kepler.dao.mysql.PetDao;
 import org.alexdev.kepler.game.entity.Entity;
-import org.alexdev.kepler.game.entity.EntityType;
 import org.alexdev.kepler.game.item.Item;
 import org.alexdev.kepler.game.item.interactors.InteractionType;
 import org.alexdev.kepler.game.item.interactors.types.PetNestInteractor;
@@ -10,14 +9,10 @@ import org.alexdev.kepler.game.pathfinder.Position;
 import org.alexdev.kepler.game.pets.PetDetails;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.game.room.enums.StatusType;
 import org.alexdev.kepler.game.triggers.GenericTrigger;
 import org.alexdev.kepler.messages.outgoing.rooms.items.PLACE_FLOORITEM;
-import org.alexdev.kepler.messages.outgoing.rooms.items.SHOWPROGRAM;
 import org.alexdev.kepler.messages.outgoing.rooms.items.STUFFDATAUPDATE;
 
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class FlatTrigger extends GenericTrigger {
     @Override

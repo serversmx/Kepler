@@ -8,12 +8,10 @@ import org.alexdev.kepler.game.games.history.GameHistory;
 import org.alexdev.kepler.game.games.player.GameRank;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.models.RoomModel;
-import org.alexdev.kepler.messages.outgoing.games.GAMEDELETED;
 import org.alexdev.kepler.util.DateUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

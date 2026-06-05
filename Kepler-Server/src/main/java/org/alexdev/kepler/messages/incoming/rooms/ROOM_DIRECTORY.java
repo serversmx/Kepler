@@ -5,7 +5,6 @@ import org.alexdev.kepler.game.games.player.GamePlayer;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomManager;
-import org.alexdev.kepler.messages.outgoing.games.FULLGAMESTATUS;
 import org.alexdev.kepler.messages.outgoing.navigator.CANTCONNECT;
 import org.alexdev.kepler.messages.outgoing.navigator.CANTCONNECT.QueueError;
 import org.alexdev.kepler.messages.outgoing.rooms.OPEN_CONNECTION;

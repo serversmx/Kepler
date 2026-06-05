@@ -1,21 +1,14 @@
 package org.alexdev.kepler.messages.incoming.messenger;
 
-import org.alexdev.kepler.dao.mysql.MessengerDao;
-import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.messenger.Messenger;
 import org.alexdev.kepler.game.messenger.MessengerError;
 import org.alexdev.kepler.game.messenger.MessengerErrorType;
-import org.alexdev.kepler.game.messenger.MessengerUser;
 import org.alexdev.kepler.game.player.Player;
-import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.player.PlayerManager;
-import org.alexdev.kepler.messages.outgoing.messenger.BUDDY_REQUEST_RESULT;
-import org.alexdev.kepler.messages.outgoing.messenger.FRIEND_REQUEST;
 import org.alexdev.kepler.messages.outgoing.messenger.MESSENGER_ERROR;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 
-import java.sql.SQLException;
 
 public class MESSENGER_REQUESTBUDDY implements MessageEvent {
     @Override

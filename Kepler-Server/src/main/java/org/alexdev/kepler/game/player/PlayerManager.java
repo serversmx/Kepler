@@ -13,8 +13,6 @@ import org.alexdev.kepler.messages.outgoing.openinghours.INFO_HOTEL_CLOSING;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.messages.types.MessageComposer;
 import org.alexdev.kepler.util.DateUtil;
-import org.alexdev.kepler.util.config.ServerConfiguration;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import java.time.Duration;
 import java.time.LocalTime;

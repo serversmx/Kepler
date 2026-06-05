@@ -1,7 +1,6 @@
 package org.alexdev.kepler.game.commands.registered;
 
 import org.alexdev.kepler.dao.mysql.BadgeDao;
-import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.commands.Command;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;

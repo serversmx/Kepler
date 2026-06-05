@@ -1,13 +1,11 @@
 package org.alexdev.kepler.dao.mysql;
 
-import org.alexdev.kepler.Kepler;
 import org.alexdev.kepler.dao.Storage;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.util.DateUtil;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Collection;
 

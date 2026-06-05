@@ -3,7 +3,6 @@ package org.alexdev.kepler.dao.mysql;
 import org.alexdev.kepler.dao.Storage;
 import org.alexdev.kepler.game.messenger.MessengerMessage;
 import org.alexdev.kepler.game.messenger.MessengerUser;
-import org.alexdev.kepler.log.Log;
 import org.alexdev.kepler.util.DateUtil;
 
 import java.sql.Connection;

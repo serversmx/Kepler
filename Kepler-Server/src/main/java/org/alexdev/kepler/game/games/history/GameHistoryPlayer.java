@@ -1,6 +1,5 @@
 package org.alexdev.kepler.game.games.history;
 
-import org.alexdev.kepler.dao.mysql.GameDao;
 import org.alexdev.kepler.dao.mysql.PlayerDao;
 
 public class GameHistoryPlayer {

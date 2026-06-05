@@ -1,6 +1,5 @@
 package org.alexdev.kepler.util;
 
-import org.alexdev.kepler.game.GameScheduler;
 import org.alexdev.kepler.util.config.GameConfiguration;
 
 import java.nio.charset.Charset;

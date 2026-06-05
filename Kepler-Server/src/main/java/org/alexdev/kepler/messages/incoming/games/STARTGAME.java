@@ -8,7 +8,6 @@ import org.alexdev.kepler.game.games.player.GamePlayer;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.triggers.GameLobbyTrigger;
-import org.alexdev.kepler.messages.outgoing.games.CREATEFAILED;
 import org.alexdev.kepler.messages.outgoing.games.STARTFAILED;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.messages.types.MessageEvent;

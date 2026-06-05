@@ -1,7 +1,6 @@
 package org.alexdev.kepler.messages.incoming.rooms.badges;
 
 import org.alexdev.kepler.dao.mysql.BadgeDao;
-import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.messages.outgoing.rooms.badges.USER_BADGE;
 import org.alexdev.kepler.messages.types.MessageEvent;

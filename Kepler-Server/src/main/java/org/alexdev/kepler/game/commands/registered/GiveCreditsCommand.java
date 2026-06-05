@@ -1,7 +1,6 @@
 package org.alexdev.kepler.game.commands.registered;
 
 import org.alexdev.kepler.dao.mysql.CurrencyDao;
-import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.commands.Command;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
@@ -9,7 +8,6 @@ import org.alexdev.kepler.game.fuserights.Fuseright;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.player.PlayerManager;
-import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE;
 import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE.ChatMessageType;
 import org.alexdev.kepler.messages.outgoing.user.currencies.CREDIT_BALANCE;

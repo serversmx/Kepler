@@ -1,13 +1,11 @@
 package org.alexdev.kepler.game.room;
 
-import org.alexdev.kepler.dao.Storage;
 import org.alexdev.kepler.dao.mysql.RoomDao;
 import org.alexdev.kepler.dao.mysql.RoomFavouritesDao;
 import org.alexdev.kepler.dao.mysql.RoomVoteDao;
 import org.alexdev.kepler.game.room.handlers.walkways.WalkwaysEntrance;
 import org.alexdev.kepler.game.room.handlers.walkways.WalkwaysManager;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

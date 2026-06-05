@@ -6,7 +6,6 @@ import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.messages.outgoing.messenger.MESSENGER_INIT;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
-import org.alexdev.kepler.util.config.ServerConfiguration;
 
 public class MESSENGERINIT implements MessageEvent {
     @Override

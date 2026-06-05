@@ -1,14 +1,10 @@
 package org.alexdev.kepler.game.room;
 
 import org.alexdev.kepler.game.games.Game;
-import org.alexdev.kepler.game.games.GameManager;
-import org.alexdev.kepler.game.games.enums.GameType;
 import org.alexdev.kepler.game.room.handlers.walkways.WalkwaysManager;
-import org.alexdev.kepler.game.room.models.RoomModelTriggerType;
 import org.alexdev.kepler.util.StringUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
 
-import java.util.List;
 
 public class RoomData {
     //private static final int SECONDS_UNTIL_UPDATE = 60;

@@ -2,10 +2,8 @@ package org.alexdev.kepler.dao.mysql;
 
 import org.alexdev.kepler.dao.Storage;
 import org.alexdev.kepler.game.moderation.ChatMessage;
-import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomData;
-import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE;
 import org.alexdev.kepler.util.DateUtil;
 
 import java.sql.Connection;
@@ -14,8 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomDao {
 

@@ -10,7 +10,6 @@ import org.alexdev.kepler.messages.outgoing.messenger.ADD_FRIEND;
 import org.alexdev.kepler.messages.outgoing.messenger.BUDDY_REQUEST_RESULT;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
-import org.alexdev.kepler.util.config.ServerConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

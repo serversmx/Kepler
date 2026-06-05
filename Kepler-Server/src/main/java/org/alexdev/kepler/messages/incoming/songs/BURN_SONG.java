@@ -13,7 +13,6 @@ import org.alexdev.kepler.game.song.Song;
 import org.alexdev.kepler.messages.outgoing.user.currencies.CREDIT_BALANCE;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
-import org.alexdev.kepler.util.config.ServerConfiguration;
 
 import java.util.Calendar;
 

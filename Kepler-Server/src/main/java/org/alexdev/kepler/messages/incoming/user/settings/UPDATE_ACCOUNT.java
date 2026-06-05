@@ -5,7 +5,6 @@ import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.game.player.register.RegisterDataType;
 import org.alexdev.kepler.game.player.register.RegisterValue;
-import org.alexdev.kepler.messages.incoming.register.REGISTER;
 import org.alexdev.kepler.messages.outgoing.user.settings.UPDATE_ACCOUNT_RESPONSE;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
