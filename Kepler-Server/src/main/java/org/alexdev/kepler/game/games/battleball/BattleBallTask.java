@@ -126,15 +126,15 @@ public class BattleBallTask implements Runnable {
             }
 
             // We still have more tiles left, so lets continue moving
-            if (roomEntity.getPath().size() > 0) {
-                Position next = roomEntity.getPath().pop();
+            Position next = roomEntity.pollPath();
+            if (next != null) {
 
                 RoomTile previousTile = roomEntity.getTile();
                 RoomTile nextTile = roomEntity.getRoom().getMapping().getTile(next);
 
                 // Tile was invalid after we started walking, so lets try again!
                 if (nextTile == null || !RoomTile.isValidTile(this.room, entity, next) && !next.equals(goal)) {
-                    entity.getRoomUser().getPath().clear();
+                    entity.getRoomUser().clearPath();
                     roomEntity.walkTo(goal.getX(), goal.getY());
                     this.processEntity(gamePlayer, objects, events, updateTiles, fillTiles);
                     return;

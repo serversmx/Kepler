@@ -51,6 +51,12 @@ public abstract class RoomEntity {
 
     private Map<String, RoomUserStatus> statuses;
     private LinkedList<Position> path;
+    // Guards every read/write of `path`: it is mutated by the message thread
+    // (walkTo/stopWalking/reset) and consumed by the room scheduler thread
+    // (EntityTask/BattleBallTask). Without it the size()+pop() check-then-act in
+    // those tasks can race a clear()/reassign and throw NoSuchElementException,
+    // or miss the reassignment (the field is non-volatile). Keep scope tiny.
+    private final Object pathLock = new Object();
 
     private int instanceId;
     private Item lastItemInteraction;
@@ -70,7 +76,9 @@ public abstract class RoomEntity {
 
     public void reset() {
         this.statuses.clear();
-        this.path.clear();
+        synchronized (this.pathLock) {
+            this.path.clear();
+        }
         this.nextPosition = null;
         this.goal = null;
         this.room = null;
@@ -175,7 +183,9 @@ public abstract class RoomEntity {
         }
 
         if (pathList.size() > 0) {
-            this.path = pathList;
+            synchronized (this.pathLock) {
+                this.path = pathList;
+            }
             this.isWalking = true;
             return true;
         }
@@ -187,7 +197,9 @@ public abstract class RoomEntity {
      * Called to make a user stop walking.
      */
     public void stopWalking() {
-        this.path.clear();
+        synchronized (this.pathLock) {
+            this.path.clear();
+        }
         this.isWalking = false;
         this.needsUpdate = true;
         this.nextPosition = null;
@@ -825,6 +837,27 @@ public abstract class RoomEntity {
 
     public LinkedList<Position> getPath() {
         return path;
+    }
+
+    /**
+     * Atomically pop the next step of the walk path, or null if empty. Replaces
+     * the racy getPath().size()>0 then getPath().pop() pair in the room tasks so
+     * a concurrent clear()/reassign on the message thread can't make pop() throw.
+     */
+    public Position pollPath() {
+        synchronized (this.pathLock) {
+            return this.path.isEmpty() ? null : this.path.pop();
+        }
+    }
+
+    /**
+     * Thread-safe counterpart to the internal path.clear() calls, for use from
+     * the room scheduler tasks.
+     */
+    public void clearPath() {
+        synchronized (this.pathLock) {
+            this.path.clear();
+        }
     }
 
     public boolean isWalking() {

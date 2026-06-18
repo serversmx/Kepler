@@ -97,12 +97,12 @@ public class EntityTask implements Runnable {
             }
 
             // We still have more tiles left, so lets continue moving
-            if (roomEntity.getPath().size() > 0) {
-                Position next = roomEntity.getPath().pop();
+            Position next = roomEntity.pollPath();
+            if (next != null) {
 
                 // Tile was invalid after we started walking, so lets try again!
                 if (!RoomTile.isValidTile(this.room, entity, next)) {
-                    entity.getRoomUser().getPath().clear();
+                    entity.getRoomUser().clearPath();
                     this.processEntity(entity);
                     roomEntity.walkTo(goal.getX(), goal.getY());
                     return;
@@ -128,7 +128,7 @@ public class EntityTask implements Runnable {
                 RoomTile nextTile = roomEntity.getRoom().getMapping().getTile(next);
 
                 if (nextTile == null) {
-                    entity.getRoomUser().getPath().clear();
+                    entity.getRoomUser().clearPath();
                     this.processEntity(entity);
                     roomEntity.walkTo(goal.getX(), goal.getY());
                     return;
