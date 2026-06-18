@@ -32,6 +32,26 @@ public class NetworkDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        out.add(new NettyRequest(buffer.readBytes(length)));
+        // A valid request body always carries at least the 2-byte message
+        // header NettyRequest reads in its constructor. A 0/1-byte body would
+        // make that constructor throw *after* we've allocated the slice below,
+        // and because out.add() never runs the slice would never be released
+        // (NettyRequest.dispose() is the only release site) — a remotely
+        // triggerable pooled-ByteBuf leak on the internet-facing game port.
+        if (length < 2) {
+            ctx.close();
+            return;
+        }
+
+        ByteBuf body = buffer.readBytes(length);
+
+        try {
+            out.add(new NettyRequest(body));
+        } catch (Exception e) {
+            // Construction failed before NettyRequest took ownership, so free
+            // the slice here (mirrors MusNetworkDecoder's try/finally release).
+            body.release();
+            ctx.close();
+        }
     }
 }
