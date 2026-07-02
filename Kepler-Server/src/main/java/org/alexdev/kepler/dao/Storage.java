@@ -39,6 +39,14 @@ public class Storage {
             config.setMaximumPoolSize(Runtime.getRuntime().availableProcessors() + 1);
             config.setMinimumIdle(1);
 
+            // Wait up to 60s for the database to accept connections at boot instead of
+            // failing fast. On the production VPS a kernel-upgrade reboot restarts every
+            // container at once, so kepler-server can come up seconds before test_kepler-db
+            // is ready — the default fail-fast (initializationFailTimeout=1) crashed the
+            // pool and reported a PoolInitializationException to Sentry on every reboot.
+            // Retrying for 60s lets the pool ride out that startup gap cleanly.
+            config.setInitializationFailTimeout(60000);
+
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
