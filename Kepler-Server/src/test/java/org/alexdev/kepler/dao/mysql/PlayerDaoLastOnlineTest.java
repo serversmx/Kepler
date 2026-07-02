@@ -30,7 +30,8 @@ class PlayerDaoLastOnlineTest {
                     CREATE TABLE users (
                         id INT NOT NULL PRIMARY KEY,
                         username VARCHAR(50) NOT NULL,
-                        last_online BIGINT NOT NULL DEFAULT 0
+                        last_online BIGINT NOT NULL DEFAULT 0,
+                        online_minutes BIGINT NOT NULL DEFAULT 0
                     )""");
             st.execute("INSERT INTO users (id, username, last_online) VALUES (1, 'online_one', 0)");
             st.execute("INSERT INTO users (id, username, last_online) VALUES (2, 'online_two', 0)");
@@ -57,6 +58,21 @@ class PlayerDaoLastOnlineTest {
         assertThat(second.getLastOnline()).isEqualTo(1_700_000_123L);
     }
 
+    @Test
+    void saveLastOnlineBatchAccruesOneOnlineMinutePerRun() throws Exception {
+        PlayerDetails first = details(1);
+        PlayerDetails second = details(2);
+
+        // The GameScheduler runs the batch once per minute, so two runs must
+        // accrue exactly two minutes for the players present in the batch.
+        PlayerDao.saveLastOnline(conn, List.of(first, second), 1_700_000_060L);
+        PlayerDao.saveLastOnline(conn, List.of(first), 1_700_000_120L);
+
+        assertThat(onlineMinutesFor(1)).isEqualTo(2L);
+        assertThat(onlineMinutesFor(2)).isEqualTo(1L);
+        assertThat(onlineMinutesFor(3)).isZero();
+    }
+
     private PlayerDetails details(int id) throws Exception {
         PlayerDetails details = new PlayerDetails();
         Field idField = PlayerDetails.class.getDeclaredField("id");
@@ -67,13 +83,21 @@ class PlayerDaoLastOnlineTest {
     }
 
     private long lastOnlineFor(int id) throws SQLException {
-        try (var statement = conn.prepareStatement("SELECT last_online FROM users WHERE id = ?")) {
+        return usersColumnFor(id, "last_online");
+    }
+
+    private long onlineMinutesFor(int id) throws SQLException {
+        return usersColumnFor(id, "online_minutes");
+    }
+
+    private long usersColumnFor(int id, String column) throws SQLException {
+        try (var statement = conn.prepareStatement("SELECT " + column + " FROM users WHERE id = ?")) {
             statement.setInt(1, id);
 
             try (var result = statement.executeQuery()) {
                 assertThat(result.next()).isTrue();
 
-                return result.getLong("last_online");
+                return result.getLong(column);
             }
         }
     }

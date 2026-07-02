@@ -414,6 +414,9 @@ public class PlayerDao {
 
     /**
      * Update last_online for all currently authenticated players in one batch.
+     * The GameScheduler calls this once per minute, so the same statement also
+     * accrues one minute on each player's online_minutes counter (read by the
+     * CMS "Mas Activos" community widget).
      *
      * @param details the details of the users
      */
@@ -440,7 +443,7 @@ public class PlayerDao {
             throw new SQLException("Could not update last_online because the database connection is unavailable");
         }
 
-        try (PreparedStatement preparedStatement = sqlConnection.prepareStatement("UPDATE users SET last_online = ? WHERE id = ?")) {
+        try (PreparedStatement preparedStatement = sqlConnection.prepareStatement("UPDATE users SET last_online = ?, online_minutes = online_minutes + 1 WHERE id = ?")) {
             for (PlayerDetails playerDetails : details) {
                 playerDetails.setLastOnline(currentTime);
                 preparedStatement.setLong(1, currentTime);
