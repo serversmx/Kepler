@@ -7,9 +7,15 @@ import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.util.DateUtil;
 
 import java.sql.*;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class PlayerDao {
+    private static final ZoneId ACTIVITY_TIME_ZONE = ZoneId.of("America/Mexico_City");
+
     /**
      * Logs the IP address for a given user
      *
@@ -415,8 +421,8 @@ public class PlayerDao {
     /**
      * Update last_online for all currently authenticated players in one batch.
      * The GameScheduler calls this once per minute, so the same statement also
-     * accrues one minute on each player's online_minutes counter (read by the
-     * CMS "Mas Activos" community widget).
+     * accrues one minute on each player's lifetime and daily activity counters
+     * (read by the CMS "Mas Activos" community widget).
      *
      * @param details the details of the users
      */
@@ -439,19 +445,59 @@ public class PlayerDao {
     }
 
     static void saveLastOnline(Connection sqlConnection, Collection<PlayerDetails> details, long currentTime) throws SQLException {
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+
         if (sqlConnection == null) {
             throw new SQLException("Could not update last_online because the database connection is unavailable");
         }
 
-        try (PreparedStatement preparedStatement = sqlConnection.prepareStatement("UPDATE users SET last_online = ?, online_minutes = online_minutes + 1 WHERE id = ?")) {
-            for (PlayerDetails playerDetails : details) {
-                playerDetails.setLastOnline(currentTime);
-                preparedStatement.setLong(1, currentTime);
-                preparedStatement.setInt(2, playerDetails.getId());
-                preparedStatement.addBatch();
+        Set<Integer> playerIds = new LinkedHashSet<>();
+        for (PlayerDetails playerDetails : details) {
+            playerIds.add(playerDetails.getId());
+        }
+
+        // Bucket the sampled minute in the hotel's calendar, independently of
+        // the JVM, database server, or JDBC connection time zone.
+        String activityDate = Instant.ofEpochSecond(currentTime).atZone(ACTIVITY_TIME_ZONE).toLocalDate().toString();
+        boolean previousAutoCommit = sqlConnection.getAutoCommit();
+        sqlConnection.setAutoCommit(false);
+
+        try {
+            try (PreparedStatement presence = sqlConnection.prepareStatement(
+                    "UPDATE users SET last_online = ?, online_minutes = online_minutes + 1 WHERE id = ?");
+                 PreparedStatement activity = sqlConnection.prepareStatement(
+                         "INSERT INTO users_activity_daily (user_id, activity_date, online_minutes) " +
+                         "SELECT id, ?, 1 FROM users WHERE id = ? " +
+                         "ON DUPLICATE KEY UPDATE online_minutes = users_activity_daily.online_minutes + 1")) {
+                for (int playerId : playerIds) {
+                    presence.setLong(1, currentTime);
+                    presence.setInt(2, playerId);
+                    presence.addBatch();
+
+                    activity.setString(1, activityDate);
+                    activity.setInt(2, playerId);
+                    activity.addBatch();
+                }
+
+                presence.executeBatch();
+                activity.executeBatch();
             }
 
-            preparedStatement.executeBatch();
+            sqlConnection.commit();
+            for (PlayerDetails playerDetails : details) {
+                playerDetails.setLastOnline(currentTime);
+            }
+        } catch (SQLException | RuntimeException e) {
+            try {
+                sqlConnection.rollback();
+            } catch (SQLException rollbackError) {
+                e.addSuppressed(rollbackError);
+            }
+            throw e;
+        } finally {
+            sqlConnection.setAutoCommit(previousAutoCommit);
         }
     }
 

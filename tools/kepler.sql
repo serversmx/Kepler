@@ -6601,6 +6601,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `birthday` varchar(10) NOT NULL,
   `email` varchar(256) NOT NULL,
   `last_online` int(11) NOT NULL DEFAULT 0,
+  `online_minutes` bigint(20) unsigned NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `sso_ticket` varchar(255) DEFAULT NULL,
@@ -6616,12 +6617,22 @@ CREATE TABLE IF NOT EXISTS `users` (
   `battleball_points` int(11) NOT NULL DEFAULT 0,
   `snowstorm_points` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  UNIQUE KEY `id` (`id`),
+  KEY `users_online_minutes_index` (`online_minutes`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table kepler.users: ~2 rows (approximately)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+
+-- Dumping structure for table kepler.users_activity_daily
+CREATE TABLE IF NOT EXISTS `users_activity_daily` (
+  `user_id` int(11) NOT NULL,
+  `activity_date` date NOT NULL,
+  `online_minutes` bigint(20) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`user_id`, `activity_date`),
+  KEY `users_activity_daily_activity_date_user_id_index` (`activity_date`, `user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping structure for table kepler.users_badges
 CREATE TABLE IF NOT EXISTS `users_badges` (

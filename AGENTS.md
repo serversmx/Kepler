@@ -36,14 +36,16 @@ Read this before changing server behavior for HabboP production.
 
 Key points:
 
-- Production runs this repo as Docker image `kepler-server:<sha>` in service `test_kepler-server` on `easy.convo.chat`. Query the live pinned SHA with `docker service inspect test_kepler-server --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'`. Images are built locally on the VPS in `/opt/kepler/` and not pushed to a registry — if the daemon prunes them (e.g. after easypanel "Update Server"), the self-healing `kepler-rebuild-missing-images.service` systemd unit rebuilds them from `/opt/kepler/` after the next boot.
-- Upstream is `https://github.com/Quackster/Kepler`; origin is `https://github.com/RenatoAscencio/Kepler.git`.
+- Production runs this repo as Docker image `127.0.0.1:5000/kepler-server:<sha>` in service `test_kepler-server` on `easy.convo.chat`. Query the live pinned SHA with `docker service inspect test_kepler-server --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'`. Build on the VPS in `/opt/kepler/`, tag and push to the local registry before updating the service. Registry-backed images survive local daemon pruning; do not deploy an unpushed local-only tag.
+- Upstream is `https://github.com/Quackster/Kepler`; origin is `https://github.com/serversmx/Kepler.git`.
 - Do not revert HabboP-specific server changes when pulling upstream. Compare carefully and keep local behavior.
 - Production services: `test_kepler-server`, `test_kepler-db`, `test_kepler-www`.
 - Game ports: game `12321`, RCON `12309`, MUS camera `12322`.
 - Launcher/CMS source of truth is Laravel in `../kepler-laravel`; launcher source/builds are in `../kepler-launcher/launcher/` (renamed from `kepler-cms` on May 12 2026).
 
 Recent HabboP-specific behavior:
+
+- Community activity: the authenticated-player minute batch in `PlayerDao.saveLastOnline` updates `users.online_minutes` and `users_activity_daily` atomically. Daily dates use `America/Mexico_City`. Deploy the Laravel daily-table migration before this server version; do not backfill daily history from lifetime totals. Keep the table if rolling back the server. Fresh installs use the definitions in `tools/kepler.sql`.
 
 - Avatar and mission editing must work while launcher SSO stays active. Keep the server-side handling in `Kepler-Server/src/main/java/org/alexdev/kepler/messages/incoming/user/UPDATE.java`; do not reintroduce early returns that discard already parsed figure/motto changes.
 - The launcher keeps `pIsSsoLogin = TRUE` and injects a temporary `user_password` from the current SSO ticket. The server accepts the active in-memory SSO token for account/profile flows without persisting it again.
