@@ -41,6 +41,8 @@ public class AiChatService {
         }
     }
 
+    private static final java.util.Set<Integer> EXCLUDED_MENU_IDS = java.util.Set.of(4, 8, 9, 10, 14, 15, 17, 18, 20, 24);
+
     private final HttpClient httpClient;
     private final ExecutorService executor;
 
@@ -113,8 +115,10 @@ public class AiChatService {
 
         if (menu.isEmpty()) {
             for (int i = 1; i <= 25; i++) {
-                if (i == 20) {
-                    continue; // camera
+                // Skip the camera and the ids whose names differ between the server texts and the client
+                // texts (8-10, 14, 15, 17, 18, 24) or are duplicated (4/15 "Helado"), so the player gets what the bot said.
+                if (EXCLUDED_MENU_IDS.contains(i)) {
+                    continue;
                 }
 
                 String name = TextsManager.getInstance().getValue("handitem" + i);
@@ -191,6 +195,10 @@ public class AiChatService {
         JsonObject root = new JsonObject();
         root.addProperty("model", model);
         root.addProperty("max_tokens", maxTokens);
+        // Current Claude models may "think" first and burn the whole (small) token budget without writing any text.
+        JsonObject thinking = new JsonObject();
+        thinking.addProperty("type", "disabled");
+        root.add("thinking", thinking);
         // No "temperature": current Claude models reject it with a 400 (deprecated parameter).
         root.addProperty("system", systemPrompt);
 
