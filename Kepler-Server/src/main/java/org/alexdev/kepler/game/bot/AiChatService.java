@@ -87,7 +87,7 @@ public class AiChatService {
         JsonObject root = new JsonObject();
         root.addProperty("model", model);
         root.addProperty("max_tokens", maxTokens);
-        root.addProperty("temperature", 0.8);
+        // No "temperature": current Claude models reject it with a 400 (deprecated parameter).
         root.addProperty("system", systemPrompt);
 
         JsonArray messages = new JsonArray();
