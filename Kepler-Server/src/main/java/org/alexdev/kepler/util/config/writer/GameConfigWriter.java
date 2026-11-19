@@ -127,8 +127,11 @@ public class GameConfigWriter implements ConfigWriter {
         config.put("players.online", "0");
 
         config.put("ai.chat.enabled", "false");
+        config.put("ai.chat.provider", "openai");
         config.put("ai.chat.api_key", "");
         config.put("ai.chat.model", "gpt-4o-mini");
+        config.put("ai.chat.anthropic_api_key", "");
+        config.put("ai.chat.anthropic_model", "claude-haiku-5-5");
         config.put("ai.chat.max_tokens", "100");
         config.put("ai.chat.cooldown.seconds", "10");
 
