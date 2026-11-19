@@ -103,8 +103,12 @@ public class BotManager {
                     bot.setLastAiResponseTime(now);
 
                     AiChatService.getInstance().generateResponse(bot, player.getDetails().getName(), message, (aiResponse) -> {
-                        if (aiResponse != null && !aiResponse.isEmpty()) {
-                            bot.getRoomUser().talk(aiResponse, CHAT_MESSAGE.ChatMessageType.CHAT);
+                        if (aiResponse != null && !aiResponse.text.isEmpty()) {
+                            bot.getRoomUser().talk(aiResponse.text, CHAT_MESSAGE.ChatMessageType.CHAT);
+
+                            if (aiResponse.item != null) {
+                                player.getRoomUser().carryItem(-1, aiResponse.item);
+                            }
                         } else {
                             fallbackResponse(bot);
                         }

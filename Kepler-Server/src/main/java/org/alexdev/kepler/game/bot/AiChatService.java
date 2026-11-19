@@ -3,6 +3,7 @@ package org.alexdev.kepler.game.bot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.util.config.GameConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +13,33 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AiChatService {
     private static volatile AiChatService instance;
     private static final Logger log = LoggerFactory.getLogger(AiChatService.class);
+
+    /** Habbo chat bubbles cut text around 100 characters, so never speak more than this. */
+    private static final int MAX_SPEECH_CHARS = 100;
+    private static final Pattern ITEM_TAG = Pattern.compile("\\[\\s*ITEM\\s*:\\s*([^\\]]+?)\\s*\\]", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ACTION_TEXT = Pattern.compile("\\*[^*]*\\*");
+
+    /** What the bot should say and, optionally, the drink/food to hand to the player. */
+    public static class AiReply {
+        public final String text;
+        public final String item;
+
+        AiReply(String text, String item) {
+            this.text = text;
+            this.item = item;
+        }
+    }
 
     private final HttpClient httpClient;
     private final ExecutorService executor;
@@ -30,7 +51,7 @@ public class AiChatService {
         this.executor = Executors.newFixedThreadPool(2);
     }
 
-    public void generateResponse(Bot bot, String playerName, String message, Consumer<String> callback) {
+    public void generateResponse(Bot bot, String playerName, String message, Consumer<AiReply> callback) {
         this.executor.submit(() -> {
             try {
                 GameConfiguration config = GameConfiguration.getInstance();
@@ -53,6 +74,9 @@ public class AiChatService {
                             + "No uses markdown ni emojis especiales.";
                 }
 
+                List<String> menu = getMenu(bot);
+                systemPrompt = systemPrompt + buildRules(menu);
+
                 HttpRequest request = anthropic
                         ? buildAnthropicRequest(apiKey, model, systemPrompt, playerName, message, maxTokens)
                         : buildOpenAiRequest(apiKey, model, systemPrompt, playerName, message, maxTokens);
@@ -61,7 +85,7 @@ public class AiChatService {
 
                 if (response.statusCode() == 200) {
                     String aiText = anthropic ? parseAnthropicResponse(response.body()) : parseResponse(response.body());
-                    callback.accept(aiText);
+                    callback.accept(aiText == null ? null : toReply(aiText, menu));
                 } else {
                     log.warn("AI chat API ({}) returned status {}: {}", anthropic ? "anthropic" : "openai", response.statusCode(), response.body());
                     callback.accept(null);
@@ -71,6 +95,82 @@ public class AiChatService {
                 callback.accept(null);
             }
         });
+    }
+
+    /** Items the bot can hand out: its own hand_items, or the hotel's localised drink/food names. */
+    private List<String> getMenu(Bot bot) {
+        List<String> menu = new ArrayList<>();
+
+        for (String drink : bot.getBotData().getDrinks()) {
+            if (!drink.trim().isEmpty()) {
+                menu.add(drink.trim());
+            }
+        }
+
+        if (menu.isEmpty()) {
+            for (int i = 1; i <= 25; i++) {
+                if (i == 20) {
+                    continue; // camera
+                }
+
+                String name = TextsManager.getInstance().getValue("handitem" + i);
+
+                if (name != null && !name.trim().isEmpty() && !menu.contains(name.trim())) {
+                    menu.add(name.trim());
+                }
+            }
+        }
+
+        return menu;
+    }
+
+    private String buildRules(List<String> menu) {
+        StringBuilder rules = new StringBuilder();
+        rules.append("\n\nReglas obligatorias: responde con UNA sola frase de maximo ")
+                .append(MAX_SPEECH_CHARS - 10)
+                .append(" caracteres, sin asteriscos, sin acciones entre asteriscos, sin markdown ni emojis.");
+
+        if (!menu.isEmpty()) {
+            rules.append(" Puedes dar estas bebidas o comidas: ").append(String.join(", ", menu)).append(".")
+                    .append(" Si el jugador te pide algo de beber o comer (o simplemente 'una bebida'), elige UNA del menu")
+                    .append(" (la que pidio si esta; si no, la que mejor encaje) y termina tu frase con la etiqueta [ITEM:nombre exacto del menu].")
+                    .append(" Si no pide nada, NO escribas la etiqueta. Nunca ofrezcas nada fuera del menu.");
+        }
+
+        return rules.toString();
+    }
+
+    /** Parse the optional [ITEM:x] tag, strip stage directions and cut the text to chat length. */
+    AiReply toReply(String raw, List<String> menu) {
+        String item = null;
+        Matcher matcher = ITEM_TAG.matcher(raw);
+
+        while (matcher.find()) {
+            for (String candidate : menu) {
+                if (candidate.equalsIgnoreCase(matcher.group(1).trim())) {
+                    item = candidate;
+                    break;
+                }
+            }
+        }
+
+        String text = ITEM_TAG.matcher(raw).replaceAll("");
+        text = ACTION_TEXT.matcher(text).replaceAll("").replace("*", "");
+        text = text.replaceAll("\\s+", " ").trim();
+
+        if (text.length() > MAX_SPEECH_CHARS) {
+            String cut = text.substring(0, MAX_SPEECH_CHARS);
+            int sentenceEnd = Math.max(cut.lastIndexOf('.'), Math.max(cut.lastIndexOf('!'), cut.lastIndexOf('?')));
+
+            if (sentenceEnd > 20) {
+                text = cut.substring(0, sentenceEnd + 1);
+            } else {
+                int space = cut.lastIndexOf(' ');
+                text = (space > 20 ? cut.substring(0, space) : cut).trim();
+            }
+        }
+
+        return new AiReply(text, item);
     }
 
     private HttpRequest buildOpenAiRequest(String apiKey, String model, String systemPrompt, String playerName, String message, int maxTokens) {
