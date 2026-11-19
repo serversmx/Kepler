@@ -16,6 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class BotManager {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BotManager.class);
     private static BotManager instance;
 
     public BotManager() {
@@ -97,11 +98,13 @@ public class BotManager {
                     long now = DateUtil.getCurrentTimeSeconds();
 
                     if (now - bot.getLastAiResponseTime() < cooldown) {
+                        log.debug("AI chat: {} still in cooldown", bot.getDetails().getName());
                         continue; // Still in cooldown, ignore
                     }
 
                     bot.setLastAiResponseTime(now);
 
+                    log.info("AI chat: asking AI for {} (player {})", bot.getDetails().getName(), player.getDetails().getName());
                     AiChatService.getInstance().generateResponse(bot, player.getDetails().getName(), message, (aiResponse) -> {
                         if (aiResponse != null && !aiResponse.text.isEmpty()) {
                             bot.getRoomUser().talk(aiResponse.text, CHAT_MESSAGE.ChatMessageType.CHAT);
@@ -114,6 +117,8 @@ public class BotManager {
                         }
                     });
                 } else {
+                    log.info("AI chat skipped for {}: bot ai_enabled={}, global enabled={}", bot.getDetails().getName(),
+                            bot.getBotData().isAiEnabled(), GameConfiguration.getInstance().getBoolean("ai.chat.enabled"));
                     fallbackResponse(bot);
                 }
             }

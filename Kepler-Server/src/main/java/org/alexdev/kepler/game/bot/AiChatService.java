@@ -60,6 +60,7 @@ public class AiChatService {
                 // OpenAI keeps the legacy keys (ai.chat.api_key / ai.chat.model) so existing installs keep working.
                 String apiKey = anthropic ? config.getString("ai.chat.anthropic_api_key", "") : config.getString("ai.chat.api_key", "");
                 if (apiKey == null || apiKey.isEmpty()) {
+                    log.warn("AI chat: no API key configured for provider {}", anthropic ? "anthropic" : "openai");
                     callback.accept(null);
                     return;
                 }
@@ -85,13 +86,16 @@ public class AiChatService {
 
                 if (response.statusCode() == 200) {
                     String aiText = anthropic ? parseAnthropicResponse(response.body()) : parseResponse(response.body());
-                    callback.accept(aiText == null ? null : toReply(aiText, menu));
+                    AiReply reply = aiText == null ? null : toReply(aiText, menu);
+                    log.info("AI chat [{}/{}] {} -> raw='{}' text='{}' item={}", anthropic ? "anthropic" : "openai", model, bot.getDetails().getName(),
+                            aiText, reply == null ? null : reply.text, reply == null ? null : reply.item);
+                    callback.accept(reply);
                 } else {
                     log.warn("AI chat API ({}) returned status {}: {}", anthropic ? "anthropic" : "openai", response.statusCode(), response.body());
                     callback.accept(null);
                 }
-            } catch (Exception e) {
-                log.warn("AI chat request failed: {}", e.getMessage());
+            } catch (Throwable e) {
+                log.warn("AI chat request failed", e);
                 callback.accept(null);
             }
         });
