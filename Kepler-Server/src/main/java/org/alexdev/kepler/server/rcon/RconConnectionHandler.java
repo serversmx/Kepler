@@ -41,6 +41,28 @@ public class RconConnectionHandler extends ChannelInboundHandlerAdapter {
         try { return Integer.parseInt(val); } catch (NumberFormatException e) { return -1; }
     }
 
+    /** Longest alert text accepted from RCON; longer input is truncated. */
+    static final int MAX_USER_ALERT_LENGTH = 500;
+
+    /**
+     * Normalise an alert text sent to a single player over RCON. Control
+     * characters (including the chr(1)/chr(2) framing bytes of the client
+     * protocol) are removed and the text is capped at MAX_USER_ALERT_LENGTH.
+     * Returns null when nothing printable is left, so no empty alert is sent.
+     */
+    static String cleanUserAlert(String raw) {
+        if (raw == null) {
+            return null;
+        }
+
+        String cleaned = raw.replaceAll("[\\p{Cntrl}&&[^\\n]]", "").trim();
+        if (cleaned.isEmpty()) {
+            return null;
+        }
+
+        return cleaned.length() > MAX_USER_ALERT_LENGTH ? cleaned.substring(0, MAX_USER_ALERT_LENGTH) : cleaned;
+    }
+
     public RconConnectionHandler(RconServer rconServer) {
         this.server = rconServer;
     }
@@ -221,6 +243,18 @@ public class RconConnectionHandler extends ChannelInboundHandlerAdapter {
                 case REFRESH_NAVIGATOR:
                     NavigatorManager.reset();
                     log.info("[RCON] Navigator refreshed");
+                    break;
+
+                case USER_ALERT:
+                    // Alert one connected player (e.g. "thanks for voting" from the
+                    // CMS vote pingback). Offline players are skipped silently.
+                    String userAlert = cleanUserAlert(message.getValues().get("message"));
+                    online = PlayerManager.getInstance().getPlayerById(parseUserId(message));
+
+                    if (online != null && userAlert != null) {
+                        online.send(new ALERT(userAlert));
+                    }
+
                     break;
 
                 case GIVE_BADGE:

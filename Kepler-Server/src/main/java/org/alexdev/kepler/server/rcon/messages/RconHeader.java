@@ -18,7 +18,8 @@ public enum RconHeader {
     REFRESH_WORDFILTER("refresh_wordfilter"),
     REFRESH_NAVIGATOR("refresh_navigator"),
     GIVE_BADGE("give_badge"),
-    REMOVE_BADGE("remove_badge");
+    REMOVE_BADGE("remove_badge"),
+    USER_ALERT("user_alert");
 
     private final String rawHeader;
 
