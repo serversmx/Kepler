@@ -3,7 +3,6 @@ package org.alexdev.kepler.game.room.tasks;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.item.Item;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.messages.outgoing.rooms.items.MOVE_FLOORITEM;
 
 import java.util.Collection;
 import java.util.Set;

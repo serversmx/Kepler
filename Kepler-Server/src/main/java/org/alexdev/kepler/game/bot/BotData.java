@@ -43,7 +43,7 @@ public class BotData {
         this.speeches = this.parseSpeech(speech);
         this.responses = this.parseSpeech(responses);
         this.unrecognisedSpeech = this.parseSpeech(unrecognisedResponses);
-        this.drinks = this.drinks = drinks.length() > 0 ? Arrays.asList(drinks.split(",")) : new ArrayList<>();
+        this.drinks = drinks.length() > 0 ? Arrays.asList(drinks.split(",")) : new ArrayList<>();
         this.aiEnabled = aiEnabled;
         this.aiSystemPrompt = aiSystemPrompt;
     }

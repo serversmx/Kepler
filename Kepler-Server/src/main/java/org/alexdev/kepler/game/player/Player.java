@@ -1,7 +1,6 @@
 package org.alexdev.kepler.game.player;
 
 import io.netty.util.AttributeKey;
-import org.alexdev.kepler.Kepler;
 import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.dao.mysql.SettingsDao;
 import org.alexdev.kepler.game.GameScheduler;

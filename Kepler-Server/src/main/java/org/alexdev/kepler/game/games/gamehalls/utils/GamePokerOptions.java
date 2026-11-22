@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.alexdev.kepler.dao.mysql.CurrencyDao;
 import org.alexdev.kepler.game.games.gamehalls.GamePoker;
 import org.alexdev.kepler.game.player.Player;
-import org.alexdev.kepler.messages.outgoing.rooms.items.ITEM_DELIVERED;
 import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE;
 import org.alexdev.kepler.messages.outgoing.user.currencies.CREDIT_BALANCE;
 import org.alexdev.kepler.messages.outgoing.user.currencies.TICKET_BALANCE;

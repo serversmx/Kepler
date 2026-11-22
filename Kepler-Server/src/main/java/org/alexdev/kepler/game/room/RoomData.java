@@ -65,7 +65,6 @@ public class RoomData {
         this.visitorsNow = visitorsNow;
         this.visitorsMax = visitorsMax;
         this.rating = rating;
-        this.groupId = groupId;
         this.isHidden = isHidden;
 
         if (WalkwaysManager.getInstance().getWalkways().stream().anyMatch(walkway -> walkway.getRoomTargetId() == this.room.getId())) {

@@ -77,7 +77,7 @@ class PositionTest {
         assertThat(new Position(5, 5, 3.0, 1, 1)).isEqualTo(new Position(5, 5, 9.0, 7, 7));
         assertThat(new Position(5, 5)).isNotEqualTo(new Position(6, 5));
         assertThat(new Position(5, 5).equals(null)).isFalse();
-        assertThat(new Position(5, 5).equals("[5, 5]")).isFalse();
+        assertThat(new Position(5, 5)).isNotEqualTo("[5, 5]");
     }
 
     @Test

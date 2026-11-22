@@ -6,7 +6,6 @@ import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.messages.incoming.messenger.FRIENDLIST_UPDATE;
 import org.alexdev.kepler.messages.outgoing.messenger.CONSOLE_MOTTO;
 import org.alexdev.kepler.messages.outgoing.messenger.FRIEND_REQUEST;
 import org.alexdev.kepler.util.config.GameConfiguration;
@@ -112,7 +111,7 @@ public class Messenger {
 
     public void declineRequest(MessengerUser requester) {
         MessengerDao.removeRequest(requester, this.user);
-        this.requests.remove(requester);
+        this.requests.remove(requester.getUserId());
     }
 
     public void declineAllRequests() {
