@@ -99,7 +99,7 @@ public class SnowStormPathfinder {
 
     public static GamePlayer getOppositionPlayer(SnowStormGame snowStormGame, GamePlayer thrower, Position position) {
         for (GamePlayer player : snowStormGame.getActivePlayers()) {
-            if ((player.getSnowStormAttributes().getCurrentPosition().equals(position) || (player.getSnowStormAttributes().getNextGoal() != null && player.getSnowStormAttributes().getNextGoal().equals(player)))) {
+            if ((player.getSnowStormAttributes().getCurrentPosition().equals(position) || (player.getSnowStormAttributes().getNextGoal() != null && player.getSnowStormAttributes().getNextGoal().equals(position)))) {
                 if (player.getSnowStormAttributes().getActivityState() == SnowStormActivityState.ACTIVITY_STATE_STUNNED) {
                     continue;
                 }
@@ -116,7 +116,7 @@ public class SnowStormPathfinder {
     public static boolean isBlockedTile(SnowballObject snowballObject, Position position) {
         if (snowballObject.getTrajectory() != SnowballObject.SnowballTrajectory.LONG_TRAJECTORY) {
             for (GamePlayer player : snowballObject.getGame().getActivePlayers()) {
-                if ((player.getSnowStormAttributes().getCurrentPosition().equals(position) || (player.getSnowStormAttributes().getNextGoal() != null && player.getSnowStormAttributes().getNextGoal().equals(player)))) {
+                if ((player.getSnowStormAttributes().getCurrentPosition().equals(position) || (player.getSnowStormAttributes().getNextGoal() != null && player.getSnowStormAttributes().getNextGoal().equals(position)))) {
                     if (player.getSnowStormAttributes().getActivityState() == SnowStormActivityState.ACTIVITY_STATE_STUNNED) {
                         continue;
                     }
