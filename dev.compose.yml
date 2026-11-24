@@ -10,6 +10,7 @@ services:
         condition: service_healthy
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
+      - "${WEBSOCKET_PORT}:${WEBSOCKET_PORT}"
       - "${RCON_PORT}:${RCON_PORT}"
       - "${MUS_PORT}:${MUS_PORT}"
     develop:

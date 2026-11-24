@@ -26,13 +26,38 @@ import java.io.IOException;
 public class ConnectionHandler extends SimpleChannelInboundHandler<NettyRequest> {
     final private static Logger log = LoggerFactory.getLogger(ConnectionHandler.class);
     final private NettyServer server;
+    private final boolean deferred;
+    private boolean initialized;
 
     public ConnectionHandler(NettyServer server) {
+        this(server, false);
+    }
+
+    public ConnectionHandler(NettyServer server, boolean deferred) {
         this.server = server;
+        this.deferred = deferred;
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        if (!this.deferred) {
+            initializeConnection(ctx);
+        }
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        if (this.deferred) {
+            initializeConnection(ctx);
+        }
+    }
+
+    private void initializeConnection(ChannelHandlerContext ctx) {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
+
         int maxConnectionsPerIp = GameConfiguration.getInstance().getInteger("max.connections.per.ip");
         String ipAddress = NettyPlayerNetwork.getIpAddress(ctx.channel());
 

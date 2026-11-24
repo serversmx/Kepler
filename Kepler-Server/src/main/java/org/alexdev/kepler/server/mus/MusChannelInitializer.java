@@ -6,6 +6,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.alexdev.kepler.server.mus.codec.MusNetworkDecoder;
 import org.alexdev.kepler.server.mus.codec.MusNetworkEncoder;
@@ -39,8 +41,11 @@ public class MusChannelInitializer extends ChannelInitializer<SocketChannel> {
         // builds, headless tests) can upload v14 camera BINDATA without hitting
         // the previous 64 KB cap.
         pipeline.addLast("httpAggregator", new HttpObjectAggregator(MAX_MUS_FRAME_SIZE));
-        pipeline.addLast("wsProtocol", new WebSocketServerProtocolHandler("/", null, true, MAX_MUS_FRAME_SIZE));
+        pipeline.addLast("wsProtocol", new WebSocketServerProtocolHandler(WebSocketServerProtocolConfig.newBuilder()
+                .websocketPath("/").checkStartsWith(true).allowExtensions(true)
+                .maxFramePayloadLength(MAX_MUS_FRAME_SIZE).build()));
         pipeline.addLast("wsHandshakeComplete", new WebSocketHandshakeCompleteHandler(p -> {
+            p.addLast("wsFrameAggregator", new WebSocketFrameAggregator(MAX_MUS_FRAME_SIZE));
             p.addLast("wsCodec", new WebSocketBinaryFrameCodec());
             configureNative(p);
         }));

@@ -12,6 +12,9 @@ public class DefaultConfigWriter implements ConfigWriter {
         config.put("server.bind", "127.0.0.1");
         config.put("server.port", "12321");
 
+        config.put("websocket.bind", config.get("server.bind"));
+        config.put("websocket.port", "12323");
+
         config.put("mus.bind", "127.0.0.1");
         config.put("mus.port", "12322");
 
@@ -39,6 +42,10 @@ public class DefaultConfigWriter implements ConfigWriter {
         writer.println("[Server]");
         writer.println("server.bind=" + config.get("server.bind"));
         writer.println("server.port=" + config.get("server.port"));
+        writer.println("");
+        writer.println("[WebSocket]");
+        writer.println("websocket.bind=" + config.get("websocket.bind"));
+        writer.println("websocket.port=" + config.get("websocket.port"));
         writer.println("");
         writer.println("[Rcon]");
         writer.println("rcon.bind=" + config.get("rcon.bind"));

@@ -19,13 +19,13 @@ public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
-        configureNative(pipeline);
+        configureGame(pipeline, this.nettyServer, false);
     }
 
-    private void configureNative(ChannelPipeline pipeline) {
+    static void configureGame(ChannelPipeline pipeline, NettyServer server, boolean deferred) {
         pipeline.addLast("gameEncoder", new NetworkEncoder());
         pipeline.addLast("gameDecoder", new NetworkDecoder());
-        pipeline.addLast("handler", new ConnectionHandler(this.nettyServer));
+        pipeline.addLast("handler", new ConnectionHandler(server, deferred));
         pipeline.addLast("idleStateHandler", new IdleStateHandler(60, 0, 0));
         pipeline.addLast("idleHandler", new IdleConnectionHandler());
     }

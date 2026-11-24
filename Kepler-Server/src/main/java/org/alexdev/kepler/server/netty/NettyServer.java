@@ -82,6 +82,26 @@ public class NettyServer  {
     }
 
     /**
+     * Bind the dedicated WebSocket listener using the game's event loops and state.
+     */
+    public void bindWebSocket(String bind, int port) {
+        if (port == 0) {
+            log.info("Game WebSocket server is disabled (websocket.port is missing or zero)");
+            return;
+        }
+
+        this.bootstrap.clone()
+                .childHandler(new NettyWebSocketChannelInitializer(this))
+                .bind(new InetSocketAddress(bind, port)).addListener(future -> {
+                    if (future.isSuccess()) {
+                        log.info("Game WebSocket server is listening on {}:{}", bind, port);
+                    } else {
+                        Log.getErrorLogger().error("Failed to start game WebSocket server on address: {}:{}", bind, port, future.cause());
+                    }
+                });
+    }
+
+    /**
      * Dispose the server handler.
      *
      * @throws InterruptedException

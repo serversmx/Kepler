@@ -2,6 +2,7 @@ package org.alexdev.kepler.server.netty;
 
 import io.netty.channel.Channel;
 import org.alexdev.kepler.messages.types.MessageComposer;
+import org.alexdev.kepler.server.netty.codec.websocket.WebSocketClientIp;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -46,6 +47,11 @@ public class NettyPlayerNetwork {
     }
 
     public static String getIpAddress(Channel channel) {
+        String realIp = channel.attr(WebSocketClientIp.ADDRESS_KEY).get();
+        if (realIp != null) {
+            return realIp;
+        }
+
         SocketAddress remoteAddress = channel.remoteAddress();
 
         if (remoteAddress instanceof InetSocketAddress inetSocketAddress) {

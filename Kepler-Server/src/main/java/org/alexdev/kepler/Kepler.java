@@ -183,6 +183,8 @@ public class Kepler {
         server = new NettyServer(serverIP, serverPort);
         server.createSocket();
         server.bind();
+        server.bindWebSocket(ServerConfiguration.getStringOrDefault("websocket.bind", "127.0.0.1"),
+                ServerConfiguration.getInteger("websocket.port"));
     }
 
     private static void setupRcon() {
