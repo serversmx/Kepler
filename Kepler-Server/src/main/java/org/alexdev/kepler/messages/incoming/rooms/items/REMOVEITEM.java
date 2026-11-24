@@ -20,26 +20,23 @@ public class REMOVEITEM implements MessageEvent {
             return;
         }
 
-        if (!room.isOwner(player.getDetails().getId()) && !player.hasFuse(Fuseright.ANY_ROOM_CONTROLLER)) {
-            return;
-        }
-
         String contents = reader.contents();
 
-        if (!StringUtils.isNumeric(contents)) {
+        if (!StringUtils.isNumeric(contents) || contents.length() > 9) {
             return;
         }
 
         int itemId = Integer.parseInt(contents);
         Item item = room.getItemManager().getById(itemId);
 
-        if (item == null) {
+        // REMOVEITEM is the client's wall-item delete; floor furni never goes through here.
+        if (item == null || !item.hasBehaviour(ItemBehaviour.WALL_ITEM)) {
             return;
         }
 
-        if (!room.isOwner(player.getDetails().getId()) &&
-                !(item.hasBehaviour(ItemBehaviour.PHOTO) && !player.hasFuse(Fuseright.REMOVE_PHOTOS)) &&
-                !(item.hasBehaviour(ItemBehaviour.POST_IT) && !player.hasFuse(Fuseright.REMOVE_STICKIES))) {
+        if (!canRemove(room.isOwner(player.getDetails().getId()),
+                item.hasBehaviour(ItemBehaviour.PHOTO), item.hasBehaviour(ItemBehaviour.POST_IT),
+                player.hasFuse(Fuseright.REMOVE_PHOTOS), player.hasFuse(Fuseright.REMOVE_STICKIES))) {
             return;
         }
 
@@ -53,5 +50,15 @@ public class REMOVEITEM implements MessageEvent {
 
         room.getMapping().pickupItem(player, item);
         item.delete();
+    }
+
+    /**
+     * Owners may delete any wall item in their room. Anyone else needs the fuse
+     * that matches the item: fuse_remove_photos for photos and
+     * fuse_remove_stickies for post-its (the old check had both inverted).
+     */
+    public static boolean canRemove(boolean owner, boolean photo, boolean postIt,
+                                    boolean removePhotos, boolean removeStickies) {
+        return owner || (photo && removePhotos) || (postIt && removeStickies);
     }
 }
