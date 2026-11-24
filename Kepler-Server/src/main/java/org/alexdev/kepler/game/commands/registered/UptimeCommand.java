@@ -57,23 +57,23 @@ public class UptimeCommand extends Command {
         long seconds = (uptime - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60) - minutes * (1000 * 60)) / (1000);
 
         StringBuilder msg = new StringBuilder();
-        msg.append("SERVER\r");
-        msg.append("Server uptime is " + days + " day(s), " + hours + " hour(s), " + minutes + " minute(s) and " + seconds + " second(s)<br>");
-        msg.append("There are " + ACTIVE_PLAYERS + " active players, and " + AUTHENTICATED_PLAYERS + " authenticated players<br>");
-        msg.append("Daily player peak count: " + PlayerManager.getInstance().getDailyPlayerPeak() + "<br>");
+        msg.append("SERVIDOR\r");
+        msg.append("Tiempo activo: " + days + " días, " + hours + " horas, " + minutes + " minutos y " + seconds + " segundos<br>");
+        msg.append("Hay " + ACTIVE_PLAYERS + " usuarios activos y " + AUTHENTICATED_PLAYERS + " usuarios autenticados<br>");
+        msg.append("Máximo de usuarios conectados hoy: " + PlayerManager.getInstance().getDailyPlayerPeak() + "<br>");
         msg.append("<br>");
-        msg.append("SYSTEM<br>");
-        msg.append("CPU architecture: " + CPU_ARCHITECTURE + "<br>");
-        msg.append("CPU cores: " + CPU_NUM_THREADS + "<br>");
-        msg.append("memory usage: " + MEMORY_USAGE + " MB<br>");
+        msg.append("SISTEMA<br>");
+        msg.append("Arquitectura de CPU: " + CPU_ARCHITECTURE + "<br>");
+        msg.append("Núcleos de CPU: " + CPU_NUM_THREADS + "<br>");
+        msg.append("Memoria en uso: " + MEMORY_USAGE + " MB<br>");
         msg.append("JVM: " + JVM_NAME + "<br>");
-        msg.append("OS: " + OPERATING_SYSTEM_NAME);
+        msg.append("Sistema operativo: " + OPERATING_SYSTEM_NAME);
 
         player.send(new ALERT(msg.toString()));
     }
 
     @Override
     public String getDescription() {
-        return "Get the uptime and status of the server";
+        return "Muestra el tiempo activo y el estado del servidor";
     }
 }

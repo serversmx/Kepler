@@ -26,16 +26,16 @@ public class CoordsCommand extends Command {
             return;
         }
 
-        player.send(new ALERT("Your coordinates:<br>" +
+        player.send(new ALERT("Tus coordenadas:<br>" +
                 "X: " + player.getRoomUser().getPosition().getX() + "<br>" +
                 "Y: " + player.getRoomUser().getPosition().getY() + "<br>" +
                 "Z: " + Double.toString(StringUtil.format(player.getRoomUser().getPosition().getZ())) + "<br>" + "<br>" +
-                "Head rotation: " + player.getRoomUser().getPosition().getHeadRotation() + "<br>" +
-                "Body rotation: " + player.getRoomUser().getPosition().getBodyRotation()));
+                "Orientación de la cabeza: " + player.getRoomUser().getPosition().getHeadRotation() + "<br>" +
+                "Orientación del cuerpo: " + player.getRoomUser().getPosition().getBodyRotation()));
     }
 
     @Override
     public String getDescription() {
-        return "Shows the coordinates in the room";
+        return "Muestra tus coordenadas y orientación en la sala";
     }
 }

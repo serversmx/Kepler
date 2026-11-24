@@ -29,6 +29,6 @@ public class PoofCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Refresh your figure and motto";
+        return "Actualiza la apariencia y misión de tu avatar";
     }
 }

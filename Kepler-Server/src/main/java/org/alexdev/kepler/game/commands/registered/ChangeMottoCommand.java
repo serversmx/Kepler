@@ -48,7 +48,12 @@ public class ChangeMottoCommand extends Command {
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[texto opcional]";
+    }
+
+    @Override
     public String getDescription() {
-        return "Change your motto";
+        return "Cambia tu misión; sin texto la borra";
     }
 }

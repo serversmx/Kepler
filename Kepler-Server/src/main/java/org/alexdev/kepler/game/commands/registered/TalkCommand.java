@@ -49,7 +49,12 @@ public class TalkCommand extends Command {
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[texto opcional]";
+    }
+
+    @Override
     public String getDescription() {
-        return "Voice to text command";
+        return "Lee un texto en voz alta en la sala";
     }
 }

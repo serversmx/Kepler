@@ -44,6 +44,6 @@ public class AfkCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Put your eyes to sleep";
+        return "Cierra los ojos de tu avatar";
     }
 }

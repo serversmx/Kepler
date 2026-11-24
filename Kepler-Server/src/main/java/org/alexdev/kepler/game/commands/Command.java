@@ -43,6 +43,17 @@ public abstract class Command {
      */
     public abstract String getDescription();
 
+    /** Display-only syntax; it does not change argument validation. */
+    public String getUsageArguments() {
+        String[] names = getArguments();
+        return names.length == 0 ? "" : "[" + String.join("] [", names) + "]";
+    }
+
+    public String getSyntax(String[] aliases) {
+        String usage = getUsageArguments();
+        return ":" + String.join(" / :", aliases) + (usage.isEmpty() ? "" : " " + usage);
+    }
+
     /**
      * Gets the permissions.
      *

@@ -17,6 +17,6 @@ public class FurniCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "List furniture in current room (club membership required)";
+        return "Lista los furnis de la sala (requiere Habbo Club; lo abre el cliente)";
     }
 }

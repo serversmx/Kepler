@@ -22,7 +22,7 @@ public class InfobusCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("subcommand");
+        this.arguments.add("subcomando");
     }
 
     @Override
@@ -44,14 +44,16 @@ public class InfobusCommand extends Command {
         if(args[0].equalsIgnoreCase("help")) {
 
             StringBuilder help = new StringBuilder();
-            help.append("INFOBUS COMMANDS:<br>").append("<br>");
-            help.append(":infobus open").append("<br>");
-            help.append(":infobus close").append("<br>");
-            help.append(":infobus question [text]").append("<br>");
-            help.append(":infobus option add [text]").append("<br>");
-            help.append(":infobus option remove [number]").append("<br>");
-            help.append(":infobus status").append("<br>");
-            help.append(":infobus reset");
+            help.append("COMANDOS DEL INFOBUS:<br>").append("<br>");
+            help.append(":infobus help - Muestra esta ayuda").append("<br>");
+            help.append(":infobus open - Abre la puerta").append("<br>");
+            help.append(":infobus close - Cierra la puerta").append("<br>");
+            help.append(":infobus question [texto] - Define la pregunta").append("<br>");
+            help.append(":infobus option add [texto] - Agrega una opción").append("<br>");
+            help.append(":infobus option remove [número] - Quita una opción").append("<br>");
+            help.append(":infobus start - Inicia la encuesta").append("<br>");
+            help.append(":infobus status - Muestra la encuesta").append("<br>");
+            help.append(":infobus reset - Borra pregunta, opciones y votos");
 
             player.send(new ALERT(help.toString()));
         }
@@ -67,60 +69,65 @@ public class InfobusCommand extends Command {
                     //System.out.println("Starting");
                     bus.startPoll();
                 } else {
-                    player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "You need to add some options for the question: :infobus option [add/remove] [option]"));
+                    player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Agrega opciones a la pregunta: :infobus option add [texto] (remove [número] para quitar una)"));
                 }
             } else {
-                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "You need to set a question: :infobus question [question]"));
+                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Primero define una pregunta: :infobus question [pregunta]"));
             }
         }
 
         if(args[0].equalsIgnoreCase("reset")) {
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Reset question, options and votes."));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Se restablecieron la pregunta, las opciones y los votos."));
             bus.reset();
         }
 
         if(args[0].equalsIgnoreCase("question")) {
             String question = StringUtil.filterInput(String.join(" ", IntStream.range(1, args.length).mapToObj(i -> args[i]).toArray(String[]::new)), true);
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Infobus question is now: " + question));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "La pregunta del Infobus ahora es: " + question));
             bus.setQuestion(question);
         }
 
         if(args[0].equalsIgnoreCase("option") && args[1].equalsIgnoreCase("add")) {
 
             if(args[2] == null) {
-                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "You're missing option text"));
+                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Falta el texto de la opción"));
             }
 
             String option = StringUtil.filterInput(String.join(" ", IntStream.range(2, args.length).mapToObj(i -> args[i]).toArray(String[]::new)), true);
             bus.addOption(option);
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Added option to the question, see the status by executing :infobus status"));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Opción agregada. Consulta la encuesta con :infobus status"));
 
         } else if(args[0].equalsIgnoreCase("option") && args[1].equalsIgnoreCase("remove")) {
 
             if(!NumberUtils.isCreatable(args[2])) {
-                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "To remove a question you need to the number found in :infobus status."));
+                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Para quitar una opción, usa el número que aparece en :infobus status."));
             } else {
                  bus.removeOption(Integer.parseInt(args[2]));
-                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Removed option from the question, see the status by executing :infobus status"));
+                player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Opción eliminada. Consulta la encuesta con :infobus status"));
             }
 
         } else if(args[0].equalsIgnoreCase("option") && args[1].isEmpty()) {
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Usage: :infobus option [add/remove] [option]"));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Uso: :infobus option add [texto] o :infobus option remove [número]"));
         }
 
         if(args[0].equalsIgnoreCase("close")) {
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Info-bus door closed."));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Puerta del Infobus cerrada."));
             InfobusManager.getInstance().closeDoor(room);
         }
 
         if(args[0].equalsIgnoreCase("open")) {
-            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Info-bus door opened."));
+            player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Puerta del Infobus abierta."));
             InfobusManager.getInstance().openDoor(room);
         }
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[help/open/close/question/option/status/start/reset] [datos según subcomando]";
+    }
+
+    @Override
     public String getDescription() {
-        return "To show infobus commands use [:infobus help]";
+        return "Administra el Infobus y sus encuestas; usa :infobus help";
     }
 }

@@ -25,8 +25,8 @@ public class GiveCreditsCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("user");
-        this.arguments.add("credits");
+        this.arguments.add("usuario");
+        this.arguments.add("créditos");
     }
 
     @Override
@@ -46,12 +46,12 @@ public class GiveCreditsCommand extends Command {
         Player targetUser = PlayerManager.getInstance().getPlayerByName(args[0]);
 
         if (targetUser == null) {
-            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Could not find user: " + args[0]));
+            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "No se encontró al usuario: " + args[0]));
             return;
         }
 
         if (args.length == 1) {
-            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Credit amount not provided"));
+            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Falta la cantidad de créditos"));
             return;
         }
 
@@ -59,7 +59,7 @@ public class GiveCreditsCommand extends Command {
 
         // credits should be numeric
         if (!NumberUtils.isCreatable(credits)) {
-            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Credit amount is not a number."));
+            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "La cantidad de créditos debe ser un número."));
             return;
         }
 
@@ -72,11 +72,11 @@ public class GiveCreditsCommand extends Command {
 
         targetUser.send(new CREDIT_BALANCE(targetUser.getDetails()));
 
-        player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), credits + " has been added to user " + targetDetails.getName()));
+        player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), credits + " créditos entregados al usuario " + targetDetails.getName()));
     }
 
     @Override
     public String getDescription() {
-        return "Give credits to user";
+        return "Entrega créditos a un usuario conectado";
     }
 }

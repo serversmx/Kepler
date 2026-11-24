@@ -33,7 +33,12 @@ public class PacketTestCommand extends Command {
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[paquete]";
+    }
+
+    @Override
     public String getDescription() {
-        return "Tests a Habbo client-sided packet";
+        return "Envía un paquete de prueba al cliente";
     }
 }

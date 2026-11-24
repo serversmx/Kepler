@@ -22,7 +22,7 @@ public class GiveDrinkCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("user");
+        this.arguments.add("usuario");
     }
 
     @Override
@@ -42,12 +42,12 @@ public class GiveDrinkCommand extends Command {
         if (targetUser == null ||
                 targetUser.getRoomUser().getRoom() == null ||
                 targetUser.getRoomUser().getRoom().getId() != player.getRoomUser().getRoom().getId()) {
-            player.send(new ALERT("Could not find user: " + args[0]));
+            player.send(new ALERT("No se encontró al usuario: " + args[0]));
             return;
         }
 
         if (!player.getRoomUser().containsStatus(StatusType.CARRY_DRINK) && !player.getRoomUser().containsStatus(StatusType.CARRY_FOOD)) {
-            player.send(new ALERT("You are not carrying any food or drinks to give."));
+            player.send(new ALERT("No llevas comida ni bebida para entregar."));
             return;
         }
 
@@ -63,19 +63,19 @@ public class GiveDrinkCommand extends Command {
 
         if (drink != null) {
             if (targetUser.getRoomUser().containsStatus(StatusType.AVATAR_SLEEP)) {
-                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), targetUser.getDetails().getName() + " is sleeping."));
+                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), targetUser.getDetails().getName() + " está durmiendo."));
                 return;
             }
 
             // Give drink to user if they're not already having a drink or food, and they're not dancing
             if (targetUser.getRoomUser().containsStatus(StatusType.CARRY_FOOD) ||
                 targetUser.getRoomUser().containsStatus(StatusType.CARRY_DRINK)) {
-                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), targetUser.getDetails().getName() + " is already enjoying a drink."));
+                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), targetUser.getDetails().getName() + " ya tiene comida o bebida."));
                 return;
             }
 
             if (targetUser.getRoomUser().containsStatus(StatusType.DANCE)) {
-                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Can't hand drink to " + targetUser.getDetails().getName() + ", because he/she is dancing."));
+                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "No puedes entregarle la bebida a " + targetUser.getDetails().getName() + ", porque está bailando."));
                 return;
             }
 
@@ -83,7 +83,7 @@ public class GiveDrinkCommand extends Command {
             targetUser.getRoomUser().carryItem(carryID, null);
             String carryName = TextsManager.getInstance().getValue("handitem" + carryID);
 
-            targetUser.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, targetUser.getRoomUser().getInstanceId(), player.getDetails().getName() + " handed you a " + carryName + "."));
+            targetUser.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, targetUser.getRoomUser().getInstanceId(), player.getDetails().getName() + " te entregó: " + carryName + "."));
 
             player.getRoomUser().removeStatus(StatusType.CARRY_DRINK);
             player.getRoomUser().removeStatus(StatusType.CARRY_FOOD);
@@ -93,6 +93,6 @@ public class GiveDrinkCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Gives a user your own drink";
+        return "Entrega tu bebida o comida a otro usuario de la sala";
     }
 }

@@ -17,6 +17,6 @@ public class EventsCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Show current events organised by other users";
+        return "Muestra los eventos organizados por otros usuarios (lo abre el cliente)";
     }
 }

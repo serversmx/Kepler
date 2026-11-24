@@ -8,7 +8,6 @@ import org.alexdev.kepler.game.commands.registered.*;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.fuserights.Fuseright;
 import org.alexdev.kepler.game.player.Player;
-import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -140,9 +139,9 @@ public class CommandManager {
             if (args.length < cmd.getArguments().length) {
                 if (entity instanceof Player) {
                     Player player = (Player)entity;
-                    player.send(new ALERT(TextsManager.getInstance().getValue("player_commands_no_args")));
+                    player.send(new ALERT("Faltan parámetros. Uso: " + cmd.getSyntax(new String[] {commandName})));
                 } else {
-                    //System.out.println(TextsManager.getInstance().getValue("player_commands_no_args"));
+                    // Only players receive client alerts.
                 }
                 return;
             }

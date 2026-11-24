@@ -23,7 +23,7 @@ public class ReloadCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("component");
+        this.arguments.add("componente");
     }
 
     @Override
@@ -57,35 +57,35 @@ public class ReloadCommand extends Command {
                 ));
             }
 
-            componentName = "Catalogue and item definitions";
+            componentName = "Catálogo y definiciones de furnis";
         }
 
         if (component.equalsIgnoreCase("texts")) {
             TextsManager.reset();
-            componentName = "Texts";
+            componentName = "Textos";
         }
 
         if (component.equalsIgnoreCase("models")) {
             RoomModelManager.reset();
-            componentName = "Room models";
+            componentName = "Modelos de salas";
         }
 
         if (component.equalsIgnoreCase("settings") ||
                 component.equalsIgnoreCase("config")) {
 
             GameConfiguration.reset(new GameConfigWriter());
-            componentName = "Game settings";
+            componentName = "Configuración del juego";
         }
 
         if (componentName != null) {
-            player.send(new ALERT(componentName + " has been reloaded."));
+            player.send(new ALERT("Se recargó: " + componentName + "."));
         } else {
-            player.send(new ALERT("You did not specify which component to reload!<br>You may reload either the catalogue/shop/items, models, texts or game settings."));
+            player.send(new ALERT("Indica qué componente quieres recargar:<br>catalogue/shop/items (catálogo y furnis), models (modelos), texts (textos) o settings/config (configuración)."));
         }
     }
 
     @Override
     public String getDescription() {
-        return "Refresh the settings/items/texts";
+        return "Recarga el catálogo, furnis, textos, modelos o configuración";
     }
 }

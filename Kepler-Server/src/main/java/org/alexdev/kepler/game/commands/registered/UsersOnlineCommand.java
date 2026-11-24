@@ -32,9 +32,9 @@ public class UsersOnlineCommand extends Command {
         Player session = (Player) entity;
 
         StringBuilder sb = new StringBuilder()
-                .append("Users online: ").append(players.size()).append("<br>")
-                .append("Daily player peak count: ").append(PlayerManager.getInstance().getDailyPlayerPeak()).append("<br>")
-                .append("List of users online: ").append("<br><br>");
+                .append("Usuarios conectados: ").append(players.size()).append("<br>")
+                .append("Máximo de usuarios conectados hoy: ").append(PlayerManager.getInstance().getDailyPlayerPeak()).append("<br>")
+                .append("Lista de usuarios conectados: ").append("<br><br>");
 
         for (List<Player> playerList : paginatedPlayers.values()) {
             int i = 0;
@@ -57,6 +57,6 @@ public class UsersOnlineCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Get the list of players currently online";
+        return "Muestra los usuarios conectados";
     }
 }

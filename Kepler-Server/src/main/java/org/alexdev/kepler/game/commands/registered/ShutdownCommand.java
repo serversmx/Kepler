@@ -35,7 +35,7 @@ public class ShutdownCommand extends Command {
         if (args.length > 0) {
             if (args[0].equalsIgnoreCase("cancel") || args[0].equalsIgnoreCase("off") || args[0].equalsIgnoreCase("stop")) {
                 PlayerManager.getInstance().cancelMaintenance();
-                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Cancelled shutdown"));
+                player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Apagado cancelado"));
                 return;
             }
         }
@@ -51,18 +51,23 @@ public class ShutdownCommand extends Command {
             }
         } catch (NumberFormatException e) {
             minutes = GameConfiguration.getInstance().getLong("shutdown.minutes");
-            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Failed to parse minutes provided to shutdown command, defaulting to " + minutes + " minute(s)"));
+            player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "No se pudo leer la cantidad de minutos; se usará el valor predeterminado: " + minutes + " minutos"));
         }
 
         // Enqueue maintenance shutdown
         PlayerManager.getInstance().planMaintenance(Duration.ofMinutes(minutes));
 
         // Let callee know Kepler is shutting down in X minutes
-        player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "Shutting down in " + minutes + " minute(s)"));
+        player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "El servidor se apagará en " + minutes + " minutos"));
+    }
+
+    @Override
+    public String getUsageArguments() {
+        return "[minutos o cancel/off/stop, opcional]";
     }
 
     @Override
     public String getDescription() {
-        return "<minutes> - Shutdown Kepler";
+        return "Programa el apagado del servidor o lo cancela";
     }
 }

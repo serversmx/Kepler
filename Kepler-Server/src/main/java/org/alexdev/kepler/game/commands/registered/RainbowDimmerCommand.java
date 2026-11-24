@@ -44,7 +44,7 @@ public class RainbowDimmerCommand extends Command {
 
         if (args.length == 1) {
             if (!StringUtils.isNumeric(args[0])) {
-                player.send(new ALERT("Please specify the amount of seconds inbetween the colours changing as a number"));
+                player.send(new ALERT("Indica con un número los segundos entre cada cambio de color."));
                 return;
             } else {
                 tickInterval = Integer.parseInt(args[0]);
@@ -58,7 +58,7 @@ public class RainbowDimmerCommand extends Command {
         Item moodlight = room.getItemManager().getMoodlight();
 
         if (moodlight == null) {
-            player.send(new ALERT("This command requires a moodlight placed for it to work"));
+            player.send(new ALERT("Necesitas un regulador de luces colocado en la sala."));
             return;
         }
 
@@ -75,12 +75,12 @@ public class RainbowDimmerCommand extends Command {
         if (room.getTaskManager().hasTask("RainbowTask")) {
             room.getTaskManager().cancelTask("RainbowTask");
 
-            statusMessage = "Rainbow room dimmer cycle has stopped";
+            statusMessage = "Se detuvo el ciclo de colores del regulador de luces.";
         } else {
             RainbowTask rainbowTask = new RainbowTask(room);
             room.getTaskManager().scheduleTask("RainbowTask", rainbowTask, 0, tickInterval, TimeUnit.SECONDS);
 
-            statusMessage = "Rainbow room dimmer cycle has started";
+            statusMessage = "Se inició el ciclo de colores del regulador de luces.";
         }
 
         player.send(new CHAT_MESSAGE(ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), statusMessage));
@@ -92,7 +92,12 @@ public class RainbowDimmerCommand extends Command {
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[segundos opcionales]";
+    }
+
+    @Override
     public String getDescription() {
-        return "<seconds> - Cycles through the rainbow in your very own room!";
+        return "Activa o detiene los colores del regulador de luces de tu sala";
     }
 }

@@ -23,21 +23,22 @@ public class AboutCommand extends Command {
 
         Player player = (Player)entity;
 
-        player.send(new ALERT("Project Kepler - Habbo Hotel v14 emulation" +
-                "<br>" +
-                "<br>Current revision: " + Kepler.SERVER_VERSION +
-                "<br>" +
-                "<br>Contributors:" +
-                "<br> - ThuGie, Webbanditten, Ascii, Sefhriloff, Copyright, Raptosaur, Hoshiko " + // Call for help
-                "<br>   Romuald, Glaceon, Nillus, Holo Team, Meth0d, office.boy, killerloader" +
-                "<br>   Alito, wackfx" +
-                "<br>" +
-                "<br>" +
-                "Made by Quackster from RaGEZONE"));
+        player.send(new ALERT(buildText(System.getenv("SENTRY_RELEASE"))));
+    }
+
+    /** Builds the client alert, optionally including the build release. */
+    public static String buildText(String release) {
+        String build = release == null || release.isBlank() ? "" : "<br>Compilación: " + release.strip();
+        return "HabboP Hotel<br><br>" + Kepler.SERVER_VERSION + build +
+                "<br>Hotel retro basado en Habbo v14.<br><br>" +
+                "Basado en Kepler de Quackster (RaGEZONE)<br>" +
+                "Colaboradores originales: ThuGie, Webbanditten, Ascii, Sefhriloff, Copyright, " +
+                "Raptosaur, Hoshiko, Romuald, Glaceon, Nillus, Holo Team, Meth0d, office.boy, " +
+                "killerloader, Alito, wackfx";
     }
 
     @Override
     public String getDescription() {
-        return " Information about the software powering this retro";
+        return "Muestra información y créditos de HabboP";
     }
 }

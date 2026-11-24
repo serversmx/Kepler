@@ -6,7 +6,6 @@ import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
 import org.alexdev.kepler.game.fuserights.Fuseright;
 import org.alexdev.kepler.game.player.Player;
-import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.util.config.GameConfiguration;
 import org.alexdev.kepler.util.config.writer.GameConfigWriter;
@@ -19,8 +18,8 @@ public class SetConfigCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("setting");
-        this.arguments.add("value");
+        this.arguments.add("opción");
+        this.arguments.add("valor");
     }
 
     @Override
@@ -35,7 +34,7 @@ public class SetConfigCommand extends Command {
         String value = args[1];
 
         if (!GameConfiguration.getInstance().getConfig().containsKey(setting)) {
-            player.send(new ALERT(TextsManager.getInstance().getValue("cmd.setconfig.not_found").replace("%setting%", setting)));
+            player.send(new ALERT("No existe la opción de configuración: " + setting));
             return;
         }
 
@@ -44,11 +43,11 @@ public class SetConfigCommand extends Command {
         SettingsDao.updateSetting(setting, value);
         GameConfiguration.reset(new GameConfigWriter());
 
-        player.send(new ALERT(TextsManager.getInstance().getValue("cmd.setconfig.updated").replace("%setting%", setting).replace("%old%", oldValue).replace("%new%", value)));
+        player.send(new ALERT("Se actualizó " + setting + ": " + oldValue + " -> " + value));
     }
 
     @Override
     public String getDescription() {
-        return "In-game housekeeping for the catalogue item prices.";
+        return "Cambia una opción de configuración del servidor";
     }
 }

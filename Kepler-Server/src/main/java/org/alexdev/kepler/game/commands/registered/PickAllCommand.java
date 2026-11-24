@@ -61,6 +61,6 @@ public class PickAllCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Allows the owner to pick up all furniture in a room";
+        return "Recoge los furnis de tu sala, excepto notas adhesivas";
     }
 }

@@ -28,7 +28,12 @@ public class HotelAlertCommand extends Command {
     }
 
     @Override
+    public String getUsageArguments() {
+        return "[mensaje]";
+    }
+
+    @Override
     public String getDescription() {
-        return "Sends an alert hotel-wide";
+        return "Envía una alerta a todo el hotel";
     }
 }

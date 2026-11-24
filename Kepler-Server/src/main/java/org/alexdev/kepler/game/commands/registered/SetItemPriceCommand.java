@@ -7,7 +7,6 @@ import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
 import org.alexdev.kepler.game.fuserights.Fuseright;
 import org.alexdev.kepler.game.player.Player;
-import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +19,8 @@ public class SetItemPriceCommand extends Command {
 
     @Override
     public void addArguments() {
-        this.arguments.add("sale code");
-        this.arguments.add("price");
+        this.arguments.add("código_venta");
+        this.arguments.add("precio");
     }
 
     @Override
@@ -34,13 +33,13 @@ public class SetItemPriceCommand extends Command {
         String saleCode = args[0];
 
         if (CatalogueManager.getInstance().getCatalogueItem(saleCode) == null) {
-            player.send(new ALERT(TextsManager.getInstance().getValue("cmd.setprice.not_found")));
+            player.send(new ALERT("No se encontró el artículo en el catálogo."));
             return;
         }
 
 
         if (!StringUtils.isNumeric(args[1])) {
-            player.send(new ALERT(TextsManager.getInstance().getValue("cmd.setprice.not_number")));
+            player.send(new ALERT("El precio debe ser un número entero positivo o cero."));
             return;
         }
 
@@ -48,24 +47,24 @@ public class SetItemPriceCommand extends Command {
         var item = CatalogueManager.getInstance().getCatalogueItem(saleCode);
 
         if (item.getPrice() == newPrice) {
-            player.send(new ALERT(TextsManager.getInstance().getValue("cmd.setprice.same_price")));
+            player.send(new ALERT("El artículo ya tiene ese precio."));
             return;
         }
 
         CatalogueDao.setPrice(item.getSaleCode(), newPrice);
 
-        String word = "increased";
+        String word = "aumentó";
 
         if (item.getPrice() > newPrice) {
-            word = "decreased";
+            word = "bajó";
         }
 
-        player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), TextsManager.getInstance().getValue("cmd.setprice.updated").replace("%item%", item.getName()).replace("%word%", word).replace("%old%", String.valueOf(item.getPrice())).replace("%new%", String.valueOf(newPrice))));
+        player.send(new CHAT_MESSAGE(CHAT_MESSAGE.ChatMessageType.WHISPER, player.getRoomUser().getInstanceId(), "El precio de " + item.getName() + " " + word + " de " + item.getPrice() + " a " + newPrice + " créditos."));
         item.setPrice(newPrice);
     }
 
     @Override
     public String getDescription() {
-        return "In-game housekeeping for the catalogue item prices.";
+        return "Cambia el precio de un artículo del catálogo";
     }
 }

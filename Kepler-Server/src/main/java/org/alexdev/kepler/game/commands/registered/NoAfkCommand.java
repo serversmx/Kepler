@@ -25,11 +25,11 @@ public class NoAfkCommand extends Command {
             return;
         }
 
-        player.send(new ALERT("AFK turned off"));
+        player.send(new ALERT("Modo ausente desactivado"));
     }
 
     @Override
     public String getDescription() {
-        return "Put your eyes to sleep";
+        return "Desactiva el modo ausente";
     }
 }

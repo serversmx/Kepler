@@ -66,6 +66,6 @@ public class SitCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Parks your arse on the floor";
+        return "Sienta a tu avatar en el suelo";
     }
 }

@@ -7,7 +7,6 @@ import org.alexdev.kepler.game.messenger.Messenger;
 import org.alexdev.kepler.game.player.register.RegisterDataType;
 import org.alexdev.kepler.game.player.register.RegisterValue;
 import org.alexdev.kepler.game.room.enums.StatusType;
-import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.messages.outgoing.openinghours.INFO_HOTEL_CLOSED;
 import org.alexdev.kepler.messages.outgoing.openinghours.INFO_HOTEL_CLOSING;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
@@ -224,7 +223,7 @@ public class PlayerManager {
 
         // Notify all users maintenance has been cancelled
         for (Player p : this.players) {
-            p.send(new ALERT(TextsManager.getInstance().getValue("maintenance_cancelled")));
+            p.send(new ALERT("Se canceló el apagado por mantenimiento. Puedes seguir jugando."));
         }
     }
 

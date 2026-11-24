@@ -17,6 +17,6 @@ public class ChooserCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "List users in current room (club membership required)";
+        return "Lista los usuarios de la sala (requiere Habbo Club; lo abre el cliente)";
     }
 }

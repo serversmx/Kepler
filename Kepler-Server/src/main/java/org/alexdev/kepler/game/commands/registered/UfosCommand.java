@@ -38,7 +38,7 @@ public class UfosCommand extends Command {
         }
 
         int ufoAmount = ThreadLocalRandom.current().nextInt(0, 45) + 50;
-        String textToSpeech = "Help, unknown flying objects! The aliens! There's a swarm of " + ufoAmount + " ufos coming this way! UFOS! Help! The hotel is attacked! Zap zap zap... Houston, we have a problem! Aliens! soi soi soi soi soi. The aliens are coming! We didn't listen! The end of the world! Aargh! Help, Aliens everywhere! I see ufos! I dream about cheese! I mean, beep beep beep! Meep meep meep! Code Red! Code Red! Area 51! Marihuana! Cape Canaveral! Aaron is a fag! Ufos! " + ufoAmount + " of them! I see them everywhere! Oh and I see dead people! UFOS! UFOs from Mars! Or from the Moon! Fuck knows! Whatever! Oh my god! They look like fucking weirdos! Space monsters! They look even worse than Rick Astley! UFOs! It's the end of the world! Ufos! Ufos! Ufos!";
+        String textToSpeech = "¡Ayuda, objetos voladores desconocidos! ¡Los extraterrestres! Una flota de " + ufoAmount + " ovnis viene hacia acá. ¡Están atacando el hotel! Houston, tenemos un problema. ¡Alerta roja! ¡Ovnis por todas partes!";
 
         TalkCommand.createVoiceSpeakMessage(room, textToSpeech);
 
@@ -74,6 +74,6 @@ public class UfosCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "UFO's :o";
+        return "Muestra una invasión de ovnis en la sala";
     }
 }

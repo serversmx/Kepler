@@ -73,10 +73,10 @@ public class InfobusManager {
 
     // Constructs the string shown in the status modal
     public String constructStatus() {
-        StringBuilder msg = new StringBuilder().append("Users in bus: " + this.playersInBus + "\r");
+        StringBuilder msg = new StringBuilder().append("Usuarios en el Infobus: " + this.playersInBus + "\r");
 
-        msg.append("\r Question: " + this.question);
-        msg.append("\r Options: \r");
+        msg.append("\r Pregunta: " + this.question);
+        msg.append("\r Opciones: \r");
         for(int i=0; i < options.size(); i++){
             int optionNumber = i + 1;
             msg.append("\r" + optionNumber + ":" + options.get(i));
