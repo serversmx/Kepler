@@ -108,4 +108,11 @@ class CommandTextTest {
         @Override public EntityType getType() { return EntityType.PLAYER; }
         @Override public void dispose() { }
     }
+
+    @org.junit.jupiter.api.Test
+    void aboutLinesStayShortSoTheAlertWindowDoesNotStretch() {
+        for (String line : AboutCommand.buildText("abc1234").split("<br>")) {
+            assertThat(line.length()).as("line '%s'", line).isLessThanOrEqualTo(60);
+        }
+    }
 }

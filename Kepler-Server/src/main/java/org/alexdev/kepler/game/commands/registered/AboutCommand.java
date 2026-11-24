@@ -26,15 +26,20 @@ public class AboutCommand extends Command {
         player.send(new ALERT(buildText(System.getenv("SENTRY_RELEASE"))));
     }
 
-    /** Builds the client alert, optionally including the build release. */
+    /**
+     * Builds the client alert, optionally including the build release. The v14 alert window
+     * grows to fit its longest line, so every line is kept short (see CommandTextTest).
+     */
     public static String buildText(String release) {
         String build = release == null || release.isBlank() ? "" : "<br>Compilación: " + release.strip();
         return "HabboP Hotel<br><br>" + Kepler.SERVER_VERSION + build +
                 "<br>Hotel retro basado en Habbo v14.<br><br>" +
-                "Basado en Kepler de Quackster (RaGEZONE)<br>" +
-                "Colaboradores originales: ThuGie, Webbanditten, Ascii, Sefhriloff, Copyright, " +
-                "Raptosaur, Hoshiko, Romuald, Glaceon, Nillus, Holo Team, Meth0d, office.boy, " +
-                "killerloader, Alito, wackfx";
+                "Basado en Kepler de Quackster (RaGEZONE)<br><br>" +
+                "Colaboradores originales:<br>" +
+                " - ThuGie, Webbanditten, Ascii, Sefhriloff,<br>" +
+                "   Copyright, Raptosaur, Hoshiko, Romuald,<br>" +
+                "   Glaceon, Nillus, Holo Team, Meth0d,<br>" +
+                "   office.boy, killerloader, Alito, wackfx";
     }
 
     @Override
