@@ -64,16 +64,17 @@ class CommandTextTest {
                 Command command = entry.getValue();
                 boolean visible = command.getPermissions().isEmpty() || command.getPermissions().stream()
                         .anyMatch(rights.getFuserightsForRank(rank)::contains);
-                String line = command.getSyntax(entry.getKey()) + " - " + command.getDescription();
+                String line = HelpCommand.wrap(":" + entry.getKey()[0] + " - " + command.getDescription());
                 if (visible) {
                     expectedCount++;
-                    assertThat(lines).as("%s: %s", rank, entry.getKey()[0]).contains(line);
+                    assertThat(text).as("%s: %s", rank, entry.getKey()[0]).contains(line);
+                    String detail = HelpCommand.buildDetailText(manager, entity, entry.getKey()[0]);
                     for (String alias : entry.getKey()) {
                         assertThat(manager.hasCommand(entity, ":" + alias)).isTrue();
-                        assertThat(line).contains(":" + alias);
+                        assertThat(detail).contains(":" + alias);
                     }
                 } else {
-                    assertThat(lines).doesNotContain(line);
+                    assertThat(text).doesNotContain(line);
                 }
             }
             assertThat(lines.stream().filter(line -> line.startsWith(":")).count()).isEqualTo(expectedCount);
@@ -85,11 +86,28 @@ class CommandTextTest {
         CommandManager manager = new CommandManager();
         FuserightsManager rights = new FuserightsManager();
         String normal = HelpCommand.buildText(manager, new RankedEntity(PlayerRank.NORMAL, rights));
-        assertThat(normal).contains(":chooser - ", ":furni - ", ":events - ", ":commands", ":help")
+        assertThat(normal).contains(":chooser - ", ":furni - ", ":events - ", ":help - ")
                 .doesNotContain(":shutdown", ":givecredits", "Page ");
-        String admin = HelpCommand.buildText(manager, new RankedEntity(PlayerRank.ADMINISTRATOR, rights));
-        assertThat(admin).contains(":givecredits [usuario] [créditos] - ", ":infobus / :bus ",
-                ":rgb / :rainbow [segundos opcionales] - ", ":motto [texto opcional] - ");
+        Entity adminEntity = new RankedEntity(PlayerRank.ADMINISTRATOR, rights);
+        String admin = HelpCommand.buildText(manager, adminEntity);
+        assertThat(admin).contains(":givecredits - ", ":infobus - ", ":rgb - ", ":motto - ");
+        assertThat(HelpCommand.buildDetailText(manager, adminEntity, "bus")).contains(":infobus / :bus", "help/open");
+        assertThat(HelpCommand.buildDetailText(manager, new RankedEntity(PlayerRank.NORMAL, rights), ":shutdown"))
+                .startsWith("No existe el comando :shutdown");
+    }
+
+    @Test
+    void helpLinesStayShortSoTheAlertWindowDoesNotStretch() {
+        CommandManager manager = new CommandManager();
+        FuserightsManager rights = new FuserightsManager();
+        Entity admin = new RankedEntity(PlayerRank.ADMINISTRATOR, rights);
+        StringBuilder all = new StringBuilder(HelpCommand.buildText(manager, admin));
+        for (var entry : manager.getCommands()) {
+            all.append("<br>").append(HelpCommand.buildDetailText(manager, admin, entry.getKey()[0]));
+        }
+        for (String line : all.toString().split("<br>")) {
+            assertThat(line.length()).as("line '%s'", line).isLessThanOrEqualTo(HelpCommand.MAX_LINE);
+        }
     }
 
     /** Uses real rank permission rules without starting the server or database. */
