@@ -2431,6 +2431,78 @@ CREATE TABLE IF NOT EXISTS `messenger_requests` (
 /*!40000 ALTER TABLE `messenger_requests` DISABLE KEYS */;
 /*!40000 ALTER TABLE `messenger_requests` ENABLE KEYS */;
 
+-- Dumping structure for table kepler.polls (managed by Laravel housekeeping; dates in UTC)
+CREATE TABLE IF NOT EXISTS `polls` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `headline` varchar(255) NOT NULL DEFAULT '',
+  `thanks` text NOT NULL,
+  `room_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `active` tinyint(1) NOT NULL DEFAULT 0,
+  `starts_at` datetime DEFAULT NULL,
+  `ends_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `polls_room_id_active_index` (`room_id`, `active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table kepler.poll_questions (type: 1 single choice, 2 multiple choice, 3 text)
+CREATE TABLE IF NOT EXISTS `poll_questions` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `poll_id` int(10) unsigned NOT NULL,
+  `sort_order` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT 1,
+  `question` text NOT NULL,
+  `min_selections` tinyint(3) unsigned NOT NULL DEFAULT 1,
+  `max_selections` tinyint(3) unsigned NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `poll_questions_poll_id_sort_order_index` (`poll_id`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table kepler.poll_question_options
+CREATE TABLE IF NOT EXISTS `poll_question_options` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `question_id` int(10) unsigned NOT NULL,
+  `sort_order` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `text` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `poll_question_options_question_id_sort_order_index` (`question_id`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table kepler.poll_participants (status: started, rejected, completed)
+CREATE TABLE IF NOT EXISTS `poll_participants` (
+  `poll_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `status` varchar(10) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`poll_id`, `user_id`),
+  KEY `poll_participants_user_id_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table kepler.poll_answers
+CREATE TABLE IF NOT EXISTS `poll_answers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `poll_id` int(10) unsigned NOT NULL,
+  `question_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `answer_text` text DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `poll_answers_question_id_user_id_unique` (`question_id`, `user_id`),
+  KEY `poll_answers_poll_id_index` (`poll_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table kepler.poll_answer_options
+CREATE TABLE IF NOT EXISTS `poll_answer_options` (
+  `answer_id` int(10) unsigned NOT NULL,
+  `option_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`answer_id`, `option_id`),
+  KEY `poll_answer_options_option_id_index` (`option_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Dumping structure for table kepler.public_items
 CREATE TABLE IF NOT EXISTS `public_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

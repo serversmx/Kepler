@@ -177,6 +177,11 @@ public class Item {
      * @return true, if successful.
      */
     public boolean isWalkable(Entity entity) {
+        // One way gates are only walkable by the user currently crossing them
+        if (this.isOneWayGate()) {
+            return OneWayGate.canWalk(this, entity);
+        }
+
         if (this.getDefinition().getSprite().equals("poolLift")) {
             return this.currentProgramValue.equals("open");
         }
@@ -233,10 +238,6 @@ public class Item {
             return true;  // Door teleporters are always walkable
         }
 
-        if (this.hasBehaviour(ItemBehaviour.ONE_WAY_GATE)) {
-            return this.isGateOpen();
-        }
-
         if (this.hasBehaviour(ItemBehaviour.SOLID_SINGLE_TILE)) {
             // Only block the primary tile, other affected tiles are walkable
             if (entity != null) {
@@ -251,6 +252,15 @@ public class Item {
         }
         
         return false;
+    }
+
+    /**
+     * Get whether this item is a one way gate (behaviour or one_way_door* sprite).
+     *
+     * @return true, if it is
+     */
+    public boolean isOneWayGate() {
+        return OneWayGate.isOneWayGate(this);
     }
 
     public boolean isGateOpen() {

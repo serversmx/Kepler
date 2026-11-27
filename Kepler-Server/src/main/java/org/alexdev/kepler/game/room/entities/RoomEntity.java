@@ -5,6 +5,7 @@ import org.alexdev.kepler.game.bot.BotManager;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
 import org.alexdev.kepler.game.item.Item;
+import org.alexdev.kepler.game.item.OneWayGate;
 import org.alexdev.kepler.game.item.base.ItemBehaviour;
 import org.alexdev.kepler.game.item.interactors.types.BedInteractor;
 import org.alexdev.kepler.game.item.roller.RollingData;
@@ -194,6 +195,34 @@ public abstract class RoomEntity {
     }
 
     /**
+     * Make the entity walk a fixed list of steps, bypassing the pathfinder. The steps are still
+     * validated tile by tile by the entity task. Used for crossing one way gates.
+     *
+     * @param steps the positions to walk through, in order
+     * @return true, if the walk was started
+     */
+    public boolean walkAlong(List<Position> steps) {
+        if (this.room == null || steps.isEmpty()) {
+            return false;
+        }
+
+        LinkedList<Position> newPath = new LinkedList<>();
+
+        for (Position step : steps) {
+            newPath.add(step.copy());
+        }
+
+        this.goal = newPath.getLast().copy();
+
+        synchronized (this.pathLock) {
+            this.path = newPath;
+        }
+
+        this.isWalking = true;
+        return true;
+    }
+
+    /**
      * Called to make a user stop walking.
      */
     public void stopWalking() {
@@ -242,6 +271,10 @@ public abstract class RoomEntity {
                 this.getRoom().getEntityManager().leaveRoom(this.entity, true);
                 return;
             }
+        }
+
+        if (this.entity.getType() == EntityType.PLAYER) {
+            OneWayGate.onPlayerStopped((Player) this.entity);
         }
 
         this.invokeItem(null, false);

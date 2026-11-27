@@ -3,6 +3,7 @@ package org.alexdev.kepler.messages.incoming.songs;
 import org.alexdev.kepler.dao.mysql.SongMachineDao;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
+import org.alexdev.kepler.game.song.SongPlayback;
 import org.alexdev.kepler.messages.outgoing.songs.SONG_INFO;
 import org.alexdev.kepler.messages.outgoing.songs.SOUND_PACKAGES;
 import org.alexdev.kepler.messages.outgoing.songs.USER_SOUND_PACKAGES;
@@ -28,7 +29,8 @@ public class GET_SONG_INFO implements MessageEvent {
         var song = SongMachineDao.getSongList(room.getItemManager().getSoundMachine().getId());
 
         if (song.size() > 0) {
-            player.send(new SONG_INFO(song.get(0)));
+            long machineId = room.getItemManager().getSoundMachine().getId();
+            player.send(new SONG_INFO(song.get(0), SongPlayback.playTime(machineId, song.get(0))));
         }
 
         /*

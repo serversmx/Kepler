@@ -3,6 +3,7 @@ package org.alexdev.kepler.messages.incoming.user;
 import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerManager;
+import org.alexdev.kepler.messages.outgoing.user.UPDATE_OK;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.slf4j.Logger;
@@ -84,5 +85,7 @@ public class UPDATE implements MessageEvent {
         if (player.getRoomUser().getRoom() != null) {
             player.getRoomUser().refreshAppearance();
         }
+
+        player.send(new UPDATE_OK());
     }
 }

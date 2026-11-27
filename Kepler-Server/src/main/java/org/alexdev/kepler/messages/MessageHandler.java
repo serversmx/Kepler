@@ -40,6 +40,9 @@ import org.alexdev.kepler.messages.incoming.rooms.dimmer.MSG_ROOMDIMMER_CHANGE_S
 import org.alexdev.kepler.messages.incoming.rooms.dimmer.MSG_ROOMDIMMER_GET_PRESETS;
 import org.alexdev.kepler.messages.incoming.rooms.dimmer.MSG_ROOMDIMMER_SET_PRESET;
 import org.alexdev.kepler.messages.incoming.rooms.items.*;
+import org.alexdev.kepler.messages.incoming.polls.POLL_ANSWER;
+import org.alexdev.kepler.messages.incoming.polls.POLL_REJECT;
+import org.alexdev.kepler.messages.incoming.polls.POLL_START;
 import org.alexdev.kepler.messages.incoming.rooms.moderation.*;
 import org.alexdev.kepler.messages.incoming.rooms.pool.*;
 import org.alexdev.kepler.messages.incoming.rooms.settings.*;
@@ -93,6 +96,7 @@ public class MessageHandler {
         registerRoomTeleporterPackets();
         registerRoomModerationPackets();
         registerInfobusPackets();
+        registerPollPackets();
         registerRoomEventPackets();
         registerGameModerationPackets();
         registerMessengerPackets();
@@ -282,6 +286,7 @@ public class MessageHandler {
         registerEvent(67, new ADDSTRIPITEM());
         registerEvent(83, new G_IDATA());
         registerEvent(89, new USEITEM());
+        registerEvent(232, new ENTER_ONEWAY_DOOR());
         registerEvent(84, new SETITEMDATA());
         registerEvent(214, new SETITEMSTATE());
         registerEvent(85, new REMOVEITEM());
@@ -334,6 +339,15 @@ public class MessageHandler {
     /**
      * Register infobus packets
      */
+    /**
+     * Register room polls (hh_poll).
+     */
+    private void registerPollPackets() {
+        registerEvent(234, new POLL_START());
+        registerEvent(235, new POLL_REJECT());
+        registerEvent(236, new POLL_ANSWER());
+    }
+
     private void registerInfobusPackets() {
         registerEvent(111, new CHANGEWORLD());
         registerEvent(112, new VOTE());
@@ -448,6 +462,7 @@ public class MessageHandler {
         registerEvent(167, new LEAVEGAME());
         registerEvent(168, new KICKPLAYER());
         registerEvent(169, new WATCHGAME());
+        registerEvent(216, new GET_SPECTATOR_AMOUNT());
         registerEvent(170, new STARTGAME());
         registerEvent(171, new GAMEEVENT());
         registerEvent(172, new GAMERESTART());

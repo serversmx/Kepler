@@ -16,6 +16,7 @@ import org.alexdev.kepler.game.item.public_items.PublicItemParser;
 import org.alexdev.kepler.game.pathfinder.Position;
 import org.alexdev.kepler.game.navigator.NavigatorManager;
 import org.alexdev.kepler.game.player.Player;
+import org.alexdev.kepler.game.polls.PollManager;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomManager;
 import org.alexdev.kepler.game.room.mapping.RoomTile;
@@ -242,6 +243,9 @@ public class RoomEntityManager {
         if (gamePlayer != null && gamePlayer.isEnteringGame()) {
             gamePlayer.setEnteringGame(false);
         }
+
+        // hh_poll: offer this room's active poll (if any) once the room has loaded.
+        PollManager.getInstance().scheduleOffer(player, this.room);
     }
 
     /**

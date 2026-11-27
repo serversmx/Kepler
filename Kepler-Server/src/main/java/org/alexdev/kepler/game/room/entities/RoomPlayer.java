@@ -6,6 +6,7 @@ import org.alexdev.kepler.game.games.Game;
 import org.alexdev.kepler.game.games.GameManager;
 import org.alexdev.kepler.game.games.player.GamePlayer;
 import org.alexdev.kepler.game.item.Item;
+import org.alexdev.kepler.game.item.OneWayGate;
 import org.alexdev.kepler.game.item.base.ItemBehaviour;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.RoomManager;
@@ -24,6 +25,7 @@ public class RoomPlayer extends RoomEntity {
 
     private int authenticateId;
     private int authenticateTelporterId;
+    private int pendingOneWayGateId = -1;
     private int observingGameId;
     private int lidoVote;
 
@@ -87,9 +89,11 @@ public class RoomPlayer extends RoomEntity {
 
     @Override
     public void reset() {
+        OneWayGate.cancel(this.player);
         super.reset();
         this.isTyping = false;
         this.isDiving = false;
+        this.pendingOneWayGateId = -1;
         this.observingGameId = -1;
         this.lidoVote = 0;
         RoomTradeManager.close(this);
@@ -202,6 +206,14 @@ public class RoomPlayer extends RoomEntity {
 
     public void setAuthenticateTelporterId(int authenticateTelporterId) {
         this.authenticateTelporterId = authenticateTelporterId;
+    }
+
+    public int getPendingOneWayGateId() {
+        return pendingOneWayGateId;
+    }
+
+    public void setPendingOneWayGateId(int pendingOneWayGateId) {
+        this.pendingOneWayGateId = pendingOneWayGateId;
     }
 
     public boolean isTyping() {

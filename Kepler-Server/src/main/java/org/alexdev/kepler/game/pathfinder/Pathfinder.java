@@ -149,6 +149,11 @@ public class Pathfinder {
         // Avoid walking into furniture unless it's their last location
         if (!current.equals(room.getModel().getDoorLocation())) {
             if (toItem != null) {
+                // One way gates never take part in normal paths, only their own crossing walk
+                if (toItem.isOneWayGate()) {
+                    return toItem.isWalkable(entity);
+                }
+
                 if (isFinalMove) {
                     // Allow walking if item is walkable or trapped inside
                     return toItem.isWalkable(entity) || AffectedTile.getAffectedTiles(toItem).stream().anyMatch(x -> room.getMapping().getTile(x).containsEntity(entity));

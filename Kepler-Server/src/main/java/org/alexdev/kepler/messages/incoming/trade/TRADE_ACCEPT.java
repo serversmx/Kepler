@@ -3,6 +3,7 @@ package org.alexdev.kepler.messages.incoming.trade;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.managers.RoomTradeManager;
+import org.alexdev.kepler.messages.outgoing.trade.TRADE_COMPLETED;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 
@@ -30,6 +31,9 @@ public class TRADE_ACCEPT implements MessageEvent {
             RoomTradeManager.addItems(player, player.getRoomUser().getTradePartner());
             RoomTradeManager.addItems(player.getRoomUser().getTradePartner(), player);
 
+            // v14 completes on 112 (no payload); 110 still refreshes the strip on close.
+            player.send(new TRADE_COMPLETED());
+            player.getRoomUser().getTradePartner().send(new TRADE_COMPLETED());
             RoomTradeManager.close(player.getRoomUser());
         }
     }

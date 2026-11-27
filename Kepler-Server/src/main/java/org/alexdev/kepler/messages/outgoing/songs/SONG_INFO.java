@@ -6,9 +6,18 @@ import org.alexdev.kepler.server.netty.streams.NettyResponse;
 
 public class SONG_INFO extends MessageComposer {
     private final Song song;
+    private final int playTime;
 
     public SONG_INFO(Song song) {
+        this(song, 0);
+    }
+
+    /**
+     * @param playTime position of the song in units of 100 ms (the client wraps it by the song length)
+     */
+    public SONG_INFO(Song song, int playTime) {
         this.song = song;
+        this.playTime = playTime;
     }
 
     @Override
@@ -20,6 +29,8 @@ public class SONG_INFO extends MessageComposer {
         //}
 
         response.writeString(this.song.getData());
+        // v14 reads a VL64 playTime after the string (units of 100 ms).
+        response.writeInt(this.playTime);
     }
 
     @Override

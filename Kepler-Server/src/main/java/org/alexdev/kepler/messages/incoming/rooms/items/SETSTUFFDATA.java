@@ -11,6 +11,7 @@ import org.alexdev.kepler.game.room.mapping.RoomTile;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.alexdev.kepler.game.song.SongPlayback;
 
 public class SETSTUFFDATA implements MessageEvent {
     @Override
@@ -144,6 +145,10 @@ public class SETSTUFFDATA implements MessageEvent {
 
         item.setCustomData(newData);
         item.updateStatus();
+
+        if (item.hasBehaviour(ItemBehaviour.SOUND_MACHINE)) {
+            SongPlayback.restart(item.getId());
+        }
 
         player.getRoomUser().setLastItemInteraction(item);
 
