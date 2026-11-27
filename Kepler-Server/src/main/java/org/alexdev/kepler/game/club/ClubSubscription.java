@@ -8,6 +8,7 @@ import org.alexdev.kepler.game.item.ItemManager;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.messages.outgoing.rooms.badges.AVAILABLE_BADGES;
 import org.alexdev.kepler.messages.outgoing.club.CLUB_INFO;
+import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.messages.outgoing.user.currencies.CREDIT_BALANCE;
 import org.alexdev.kepler.util.DateUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
@@ -85,6 +86,7 @@ public class ClubSubscription {
         }
 
         if (player.getDetails().getCredits() < credits) {
+            player.send(new ALERT("No tienes suficientes creditos para comprar Habbo Club."));
             return;
         }
 

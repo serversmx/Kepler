@@ -12,58 +12,48 @@ import org.alexdev.kepler.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntPredicate;
 
 public class MESSENGER_SENDMSG implements MessageEvent {
     @Override
     public void handle(Player player, NettyRequest reader) {
-        // if (player.getVersion() < 23) {
-            int amount = reader.readInt();
+        int amount = reader.readInt();
 
-            List<Integer> friends = new ArrayList<>();
+        List<Integer> recipients = new ArrayList<>();
 
-            for (int i = 0; i < amount; i++) {
-                int friend_id = reader.readInt();
-                friends.add(friend_id);
+        for (int i = 0; i < amount; i++) {
+            recipients.add(reader.readInt());
+        }
+
+        String chatMessage = StringUtil.filterInput(reader.readString(), false);
+
+        // Solo amigos: el cliente puede enviar ids arbitrarios (los mensajes offline a amigos se siguen guardando)
+        for (int userId : filterFriends(recipients, player.getMessenger()::hasFriend)) {
+            int messageId = MessengerDao.newMessage(player.getDetails().getId(), userId, chatMessage);
+
+            Player friend = PlayerManager.getInstance().getPlayerById(userId);
+
+            if (friend != null) {
+                MessengerMessage message = new MessengerMessage(
+                        messageId, userId, player.getDetails().getId(), DateUtil.getCurrentTimeSeconds(), chatMessage);
+
+                friend.send(new MESSENGER_MSG(message));
             }
+        }
+    }
 
-            String chatMessage = StringUtil.filterInput(reader.readString(), false);
+    /**
+     * Deja solo los destinatarios que son amigos, sin duplicados y en el mismo orden.
+     */
+    static List<Integer> filterFriends(List<Integer> recipients, IntPredicate isFriend) {
+        List<Integer> result = new ArrayList<>();
 
-            for (int userId : friends) {
-                int messageId = MessengerDao.newMessage(player.getDetails().getId(), userId, chatMessage);
-
-                Player friend = PlayerManager.getInstance().getPlayerById(userId);
-
-                if (friend != null) {
-                    MessengerMessage message = new MessengerMessage(
-                            messageId, userId, player.getDetails().getId(), DateUtil.getCurrentTimeSeconds(), chatMessage);
-
-                    friend.send(new MESSENGER_MSG(message));
-                }
+        for (int id : recipients) {
+            if (isFriend.test(id) && !result.contains(id)) {
+                result.add(id);
             }
-        /*} else {
-            int userId = reader.readInt();
-            String message = StringUtil.filterInput(reader.readString(), false);
+        }
 
-            MessengerUser friend = player.getMessenger().getFriend(userId);
-
-            if (friend == null) {
-                player.send(new INSTANT_MESSAGE_ERROR(6, userId));
-                return;
-            }
-
-            Player friendPlayer = PlayerManager.getInstance().getPlayerById(userId);
-
-            if (friendPlayer == null) {
-                player.send(new INSTANT_MESSAGE_ERROR(5, userId));
-                return;
-            }
-
-            int messageId = MessengerDao.newMessage(player.getDetails().getId(), userId, message);
-
-            MessengerMessage msg = new MessengerMessage(
-                    messageId, userId, player.getDetails().getId(), DateUtil.getCurrentTimeSeconds(), message);
-
-            friendPlayer.send(new MESSENGER_MSG(msg));
-        }*/
+        return result;
     }
 }

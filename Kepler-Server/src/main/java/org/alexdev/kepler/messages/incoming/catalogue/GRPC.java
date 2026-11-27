@@ -14,6 +14,8 @@ import org.alexdev.kepler.game.player.PlayerDetails;
 import org.alexdev.kepler.game.player.PlayerManager;
 import org.alexdev.kepler.game.texts.TextsManager;
 import org.alexdev.kepler.messages.outgoing.catalogue.NO_CREDITS;
+import org.alexdev.kepler.messages.outgoing.catalogue.PURCHASE_ERROR;
+import org.alexdev.kepler.messages.outgoing.catalogue.PURCHASE_NOT_ALLOWED;
 import org.alexdev.kepler.messages.outgoing.rooms.items.ITEM_DELIVERED;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.messages.outgoing.alert.NO_USER_FOUND;
@@ -24,36 +26,48 @@ import org.alexdev.kepler.util.DateUtil;
 import org.alexdev.kepler.util.StringUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
 
-import java.util.Optional;
-
 public class GRPC implements MessageEvent {
     @Override
     public void handle(Player player, NettyRequest reader) throws Exception {
         String content = reader.contents();
-        String[] data = content.split(Character.toString((char) 13));
+        String[] data = content.split(Character.toString((char) 13), -1);
+
+        if (data.length < 6 || (data[5].equals("1") && data.length < 7)) {
+            player.send(new PURCHASE_ERROR());
+            return;
+        }
 
         String saleCode = data[3];
 
         CatalogueItem item = CatalogueManager.getInstance().getCatalogueItem(saleCode);
 
         if (item == null) {
+            player.send(new PURCHASE_ERROR());
             return;
         }
 
         int price = item.getPrice();
 
-        // If the item is not a buyable special rare, then check if they can actually buy it
-        if (RareManager.getInstance().getCurrentRare() != null && item != RareManager.getInstance().getCurrentRare()) {
-            Optional<CataloguePage> pageStream = CatalogueManager.getInstance().getCataloguePages().stream().filter(p -> item.hasPage(p.getId())).findFirst();
-
-            if (!pageStream.isPresent() || pageStream.get().getMinRole().getRankId() > player.getDetails().getRank().getRankId()) {
-                return;
-            }
+        var currentRare = RareManager.getInstance().getCurrentRare();
+        // Compare by sale code: a catalogue reload replaces the item instances.
+        boolean isCurrentRare = currentRare != null && (currentRare == item ||
+                (item.getSaleCode() != null && item.getSaleCode().equals(currentRare.getSaleCode())));
+        // v14 sends the page index in the second CR-delimited field. The daily
+        // rare is sold through its public display page, not its staff pool page.
+        CataloguePage page = CatalogueManager.getInstance().getCataloguePage(data[1]);
+        boolean displayedRare = isCurrentRare && page != null &&
+                page.getId() == GameConfiguration.getInstance().getInteger("rare.cycle.page.id");
+        if (page == null || (!item.hasPage(page.getId()) && !displayedRare) ||
+                page.getMinRole().getRankId() > player.getDetails().getRank().getRankId()) {
+            player.send(new PURCHASE_ERROR());
+            return;
+        }
+        if (page.isClubOnly() && !player.getDetails().hasClubSubscription()) {
+            player.send(new PURCHASE_NOT_ALLOWED());
+            return;
         }
 
-        var currentRare = RareManager.getInstance().getCurrentRare();
-
-        if (currentRare != null && currentRare == item) {
+        if (isCurrentRare) {
             if (!player.hasFuse(Fuseright.CREDITS)) {
                 price = RareManager.getInstance().getRareCost().get(currentRare);
             }

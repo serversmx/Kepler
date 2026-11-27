@@ -50,4 +50,21 @@ class APPROVENAMETest {
             assertThat(APPROVENAME.getNameCheckCode("existinguser")).isEqualTo(4);
         }
     }
+    @Test
+    void petIndicatorBypassesUserLookupAndUsesPetLength() throws Exception {
+        var player = Mockito.mock(org.alexdev.kepler.game.player.Player.class);
+        var request = Mockito.mock(org.alexdev.kepler.server.netty.streams.NettyRequest.class);
+        Mockito.when(request.readString()).thenReturn("ExistingUser");
+        Mockito.when(request.remainingBytes()).thenReturn(new byte[] { 1 });
+        Mockito.when(request.readInt()).thenReturn(1);
+        try (MockedStatic<PlayerDao> dao = Mockito.mockStatic(PlayerDao.class)) {
+            new APPROVENAME().handle(player, request);
+            var result = org.mockito.ArgumentCaptor.forClass(org.alexdev.kepler.messages.outgoing.register.APPROVENAMERELY.class);
+            Mockito.verify(player).send(result.capture());
+            var response = Mockito.mock(org.alexdev.kepler.server.netty.streams.NettyResponse.class);
+            result.getValue().compose(response);
+            Mockito.verify(response).writeInt(0);
+            dao.verifyNoInteractions();
+        }
+    }
 }

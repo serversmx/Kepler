@@ -2,6 +2,7 @@ package org.alexdev.kepler.messages.incoming.register;
 
 import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.player.Player;
+import org.alexdev.kepler.game.pets.PetNameValidation;
 import org.alexdev.kepler.messages.outgoing.register.APPROVENAMERELY;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
@@ -10,8 +11,11 @@ import org.alexdev.kepler.util.StringUtil;
 public class APPROVENAME implements MessageEvent {
     @Override
     public void handle(Player player, NettyRequest reader) throws Exception {
-        String name = StringUtil.filterInput(reader.readString(), true);
-        int nameCheckCode = getNameCheckCode(name);
+        String rawName = reader.readString();
+        // Registration can omit the optional type; catalogue pets send integer 1.
+        boolean petName = reader.remainingBytes().length > 0 && reader.readInt() == 1;
+        int nameCheckCode = petName ? PetNameValidation.getNameCheckCode(rawName) :
+                getNameCheckCode(StringUtil.filterInput(rawName, true));
 
         player.send(new APPROVENAMERELY(nameCheckCode));
     }

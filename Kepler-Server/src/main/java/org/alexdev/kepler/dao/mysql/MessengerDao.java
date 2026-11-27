@@ -368,6 +368,39 @@ public class MessengerDao {
     }
 
     /**
+     * Get a single message by id (read or unread), only if the given user is its receiver.
+     *
+     * @return the message, or null if it does not exist / belongs to someone else
+     */
+    public static MessengerMessage getMessageForReceiver(int messageId, int receiverId) {
+        Connection sqlConnection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            sqlConnection = Storage.getStorage().getConnection();
+            preparedStatement = Storage.getStorage().prepare("SELECT * FROM messenger_messages WHERE id = ? AND receiver_id = ? LIMIT 1", sqlConnection);
+            preparedStatement.setInt(1, messageId);
+            preparedStatement.setInt(2, receiverId);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return new MessengerMessage(
+                        resultSet.getInt("id"), resultSet.getInt("receiver_id"), resultSet.getInt("sender_id"),
+                        resultSet.getLong("date"), resultSet.getString("body"));
+            }
+        } catch (Exception e) {
+            Storage.logError(e);
+        } finally {
+            Storage.closeSilently(resultSet);
+            Storage.closeSilently(preparedStatement);
+            Storage.closeSilently(sqlConnection);
+        }
+
+        return null;
+    }
+
+    /**
      * Mark a message as read.
      *
      * @param messageId the message id to reset

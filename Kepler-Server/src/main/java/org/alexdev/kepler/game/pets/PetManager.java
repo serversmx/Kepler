@@ -267,25 +267,7 @@ public class PetManager {
      * @param name the name of the pet
      */
     public boolean isValidName(String ownerName, String name) {
-        String[] words = StringUtil.getWords(name);
-
-        if (name.contains(" "))  {
-            return false;
-        }
-
-        if (name.length() > 15) {
-            return false;
-        }
-
-        if (name.length() < 1) {
-            return false;
-        }
-
-        if (ownerName.toLowerCase().equals(name.toLowerCase())) {
-            return false;
-        }
-
-        return true;
+        return PetNameValidation.getNameCheckCode(name) == 0;
     }
 
     public PetType getType(Pet pet) {

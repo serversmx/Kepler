@@ -391,6 +391,7 @@ public class MessageHandler {
         registerEvent(40, new MESSENGER_REMOVEBUDDY());
         registerEvent(33, new MESSENGER_SENDMSG());
         registerEvent(32, new MESSENGER_MARKREAD());
+        registerEvent(201, new MESSENGER_REPORTMESSAGE());
         registerEvent(262, new FOLLOW_FRIEND());
         registerEvent(15, new FRIENDLIST_UPDATE());
     }

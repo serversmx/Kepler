@@ -5,7 +5,7 @@ import org.alexdev.kepler.game.catalogue.CatalogueManager;
 import org.alexdev.kepler.game.item.Item;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.recycler.RecyclerSession;
-import org.alexdev.kepler.messages.outgoing.recycler.START_RECYCLING_RESULT;
+import org.alexdev.kepler.messages.outgoing.recycler.CONFIRM_RECYCLING_RESULT;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.alexdev.kepler.util.DateUtil;
@@ -56,7 +56,7 @@ public class CONFIRM_FURNI_RECYCLING implements MessageEvent {
             }
 
         }
-        player.send(new START_RECYCLING_RESULT(true));
+        player.send(new CONFIRM_RECYCLING_RESULT(true));
         player.getInventory().getView("new");
     }
 }

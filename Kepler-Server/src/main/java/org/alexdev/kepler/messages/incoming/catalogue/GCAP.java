@@ -5,6 +5,7 @@ import org.alexdev.kepler.game.catalogue.CatalogueManager;
 import org.alexdev.kepler.game.catalogue.CataloguePage;
 import org.alexdev.kepler.game.catalogue.RareManager;
 import org.alexdev.kepler.game.player.Player;
+import org.alexdev.kepler.game.player.PlayerRank;
 import org.alexdev.kepler.messages.outgoing.catalogue.CATALOGUE_PAGE;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
@@ -21,7 +22,13 @@ public class GCAP implements MessageEvent {
 
         CataloguePage cataloguePage = CatalogueManager.getInstance().getCataloguePage(pageName);
 
-        if (cataloguePage == null) {
+        if (cataloguePage == null || player.getDetails().getRank().getRankId() < cataloguePage.getMinRole().getRankId()) {
+            // A valid, empty page reaches ChangeWindowView -> hideLoadingScreen.
+            // Never serialize the restricted page's products, text or artwork.
+            CataloguePage unavailable = new CataloguePage(0, PlayerRank.NORMAL, false, false,
+                    pageName, "", "Pagina no disponible", "ctlg_layout1", "", "",
+                    "Esta pagina no esta disponible.", "", "", "");
+            player.send(new CATALOGUE_PAGE(unavailable, List.of()));
             return;
         }
 

@@ -7,6 +7,7 @@ import org.alexdev.kepler.game.item.base.ItemBehaviour;
 import org.alexdev.kepler.game.item.base.ItemDefinition;
 import org.alexdev.kepler.game.item.interactors.InteractionType;
 import org.alexdev.kepler.game.pets.PetManager;
+import org.alexdev.kepler.game.pets.PetNameValidation;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.player.PlayerRank;
 import org.alexdev.kepler.log.Log;
@@ -159,7 +160,7 @@ public class CatalogueManager {
         if (def.getInteractionType() == InteractionType.PET_NEST) {
             if (extraData != null) {
                 String[] petData = extraData.split(Character.toString((char) 2));
-                String name = StringUtil.filterInput(petData[0], true);
+                String name = PetNameValidation.normalise(StringUtil.filterInput(petData[0], true));
                 String type = def.getSprite().replace("pets", "");
                 int race = Integer.valueOf(petData[1]);
                 String color = StringUtil.filterInput(petData[2], true);
