@@ -54,8 +54,16 @@ public class USER_OBJECTS extends MessageComposer {
                 response.writeKeyValue("l", states.getPosition().getX() + " " + states.getPosition().getY() + " " + (int)states.getPosition().getZ());
                 response.writeKeyValue("c", "");
             } else {
+                boolean isBot = states.getEntityType() == EntityType.BOT;
+
                 response.writeKeyValue("i", states.getInstanceId());
-                response.writeKeyValue("a", states.getEntityId());
+
+                // "a" is the web id the infostand uses for the Habbo Home button
+                // (Room_Interface_Class drops "userpage" when getWebID() is void). Bots have no home.
+                if (!isBot) {
+                    response.writeKeyValue("a", states.getEntityId());
+                }
+
                 response.writeKeyValue("n", states.getDetails().getName());
                 response.writeKeyValue("f", FigureUtil.renderFor(states.getDetails().getFigure(), -1));
                 response.writeKeyValue("s", states.getDetails().getSex());
@@ -77,9 +85,8 @@ public class USER_OBJECTS extends MessageComposer {
                     }
                 }
 
-                if (states.getEntityType() == EntityType.BOT) {
-                    response.writeDelimeter("[bot]", (char) 13);
-                }
+                // No "[bot]" line: with it the client builds Bot_Object_Class, whose getInfo() blanks the
+                // infostand picture. Bot figures are converted to v14 on load (BotFigure) so they draw as users.
             }
         }
     }

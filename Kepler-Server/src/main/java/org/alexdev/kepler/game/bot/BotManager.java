@@ -37,7 +37,8 @@ public class BotManager {
 
         for (BotData botData : botDataList) {
             Bot bot = new Bot(botData);
-            bot.getDetails().fill(0, botData.getName(), botData.getFigure(), botData.getMission(), "M");
+            String figure = BotFigure.normalise(botData.getFigure(), botData.getName());
+            bot.getDetails().fill(0, botData.getName(), figure, botData.getMission(), BotFigure.sexOf(figure));
 
             Position startPosition = botData.getStartPosition();
             startPosition.setZ(room.getMapping().getTile(botData.getStartPosition().getX(), botData.getStartPosition().getY()).getWalkingHeight());
@@ -123,6 +124,29 @@ public class BotManager {
                 }
             }
         }
+    }
+
+    /**
+     * Whether a bot with this name is in the room. The infostand of a bot offers the same
+     * "friend" and "ignore" buttons as a user (Bot_Object_Class inherits getClass() = "user"),
+     * so those requests carry the bot's name and must not reach a real user with that name.
+     *
+     * @param room the room the requesting player is in (may be null)
+     * @param name the name sent by the client
+     * @return true if a bot in the room has that name
+     */
+    public static boolean isBotInRoom(Room room, String name) {
+        if (room == null || name == null) {
+            return false;
+        }
+
+        for (Bot bot : room.getEntityManager().getEntitiesByClass(Bot.class)) {
+            if (name.equalsIgnoreCase(bot.getDetails().getName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void fallbackResponse(Bot bot) {
