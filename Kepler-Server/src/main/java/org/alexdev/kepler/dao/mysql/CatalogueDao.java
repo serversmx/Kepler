@@ -5,12 +5,16 @@ import org.alexdev.kepler.game.catalogue.CatalogueItem;
 import org.alexdev.kepler.game.catalogue.CataloguePackage;
 import org.alexdev.kepler.game.catalogue.CataloguePage;
 import org.alexdev.kepler.game.player.PlayerRank;
+import org.alexdev.kepler.log.Log;
+import org.alexdev.kepler.util.LocaleUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CatalogueDao {
 
@@ -88,6 +92,71 @@ public class CatalogueDao {
         }
 
         return pages;
+    }
+
+    /**
+     * Get the page translations: page id -> locale -> {name, body, label_pick, label_extra_s, label_extra_t}.
+     * Empty when the table does not exist yet.
+     */
+    public static Map<Integer, Map<String, String[]>> getPageTranslations() {
+        Map<Integer, Map<String, String[]>> result = new HashMap<>();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet row = null;
+
+        try {
+            conn = Storage.getStorage().getConnection();
+            stmt = Storage.getStorage().prepare("SELECT page_id, locale, name, body, label_pick, label_extra_s, label_extra_t FROM catalogue_page_translations", conn);
+            row = stmt.executeQuery();
+
+            while (row.next()) {
+                result.computeIfAbsent(row.getInt("page_id"), k -> new HashMap<>()).put(LocaleUtil.normalize(row.getString("locale")),
+                        new String[]{row.getString("name"), row.getString("body"), row.getString("label_pick"),
+                                row.getString("label_extra_s"), row.getString("label_extra_t")});
+            }
+        } catch (Exception e) {
+            Log.getErrorLogger().warn("Could not load catalogue_page_translations, catalogue pages will be Spanish only: {}", e.getMessage());
+            return new HashMap<>();
+        } finally {
+            Storage.closeSilently(row);
+            Storage.closeSilently(stmt);
+            Storage.closeSilently(conn);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the item translations: item id -> locale -> {name, description}.
+     * Empty when the table does not exist yet.
+     */
+    public static Map<Integer, Map<String, String[]>> getItemTranslations() {
+        Map<Integer, Map<String, String[]>> result = new HashMap<>();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet row = null;
+
+        try {
+            conn = Storage.getStorage().getConnection();
+            stmt = Storage.getStorage().prepare("SELECT item_id, locale, name, description FROM catalogue_item_translations", conn);
+            row = stmt.executeQuery();
+
+            while (row.next()) {
+                result.computeIfAbsent(row.getInt("item_id"), k -> new HashMap<>()).put(LocaleUtil.normalize(row.getString("locale")),
+                        new String[]{row.getString("name"), row.getString("description")});
+            }
+        } catch (Exception e) {
+            Log.getErrorLogger().warn("Could not load catalogue_item_translations, catalogue items will be Spanish only: {}", e.getMessage());
+            return new HashMap<>();
+        } finally {
+            Storage.closeSilently(row);
+            Storage.closeSilently(stmt);
+            Storage.closeSilently(conn);
+        }
+
+        return result;
     }
 
     /**

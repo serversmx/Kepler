@@ -109,7 +109,33 @@ public class DateUtil {
      * @return the seconds represented as words
      */
     public static String getReadableSeconds(long input) {
-        // Spanish without accents: the v14 catalogue bitmap fonts cannot draw them.
+        return getReadableSeconds(input, "es");
+    }
+
+    /**
+     * Readable duration in the given locale ("es", "en" or "pt"; anything else is Spanish).
+     */
+    public static String getReadableSeconds(long input, String locale) {
+        // ASCII only: the v14 catalogue bitmap fonts cannot draw accents.
+        String lang = LocaleUtil.normalize(locale);
+        String[][] units;
+        String and;
+
+        switch (lang) {
+            case "en":
+                units = new String[][]{{" day", " days"}, {" hour", " hours"}, {" minute", " minutes"}};
+                and = " and ";
+                break;
+            case "pt":
+                units = new String[][]{{" dia", " dias"}, {" hora", " horas"}, {" minuto", " minutos"}};
+                and = " e ";
+                break;
+            default:
+                units = new String[][]{{" dia", " dias"}, {" hora", " horas"}, {" minuto", " minutos"}};
+                and = " y ";
+                break;
+        }
+
         long seconds = Math.max(0, input);
         long days = seconds / 86400;
         long hours = (seconds % 86400) / 3600;
@@ -118,22 +144,22 @@ public class DateUtil {
         java.util.List<String> parts = new java.util.ArrayList<>();
 
         if (days > 0) {
-            parts.add(days + (days == 1 ? " dia" : " dias"));
+            parts.add(days + units[0][days == 1 ? 0 : 1]);
         }
 
         if (hours > 0) {
-            parts.add(hours + (hours == 1 ? " hora" : " horas"));
+            parts.add(hours + units[1][hours == 1 ? 0 : 1]);
         }
 
         if (minutes > 0 || parts.isEmpty()) {
-            parts.add(minutes + (minutes == 1 ? " minuto" : " minutos"));
+            parts.add(minutes + units[2][minutes == 1 ? 0 : 1]);
         }
 
         if (parts.size() == 1) {
             return parts.get(0);
         }
 
-        return String.join(", ", parts.subList(0, parts.size() - 1)) + " y " + parts.get(parts.size() - 1);
+        return String.join(", ", parts.subList(0, parts.size() - 1)) + and + parts.get(parts.size() - 1);
     }
 
 

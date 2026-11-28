@@ -13,14 +13,17 @@ import org.alexdev.kepler.game.player.PlayerRank;
 import org.alexdev.kepler.log.Log;
 import org.alexdev.kepler.messages.outgoing.user.currencies.FILM;
 import org.alexdev.kepler.util.DateUtil;
+import org.alexdev.kepler.util.LocaleUtil;
 import org.alexdev.kepler.util.StringUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CatalogueManager {
-    private static CatalogueManager instance;
+    private static volatile CatalogueManager instance;
 
     private List<CataloguePage> cataloguePageList;
     private List<CatalogueItem> catalogueItemList;
@@ -31,6 +34,54 @@ public class CatalogueManager {
         this.cataloguePackageList = CatalogueDao.getPackages();
         this.catalogueItemList = CatalogueDao.getItems();
         this.loadPackages();
+        this.loadTranslations();
+    }
+
+    /**
+     * Attach the page and item translations. Each page/item receives its own
+     * immutable map, set before the manager is published to other threads.
+     * Rows for "es" are ignored (Spanish is the base table).
+     */
+    private void loadTranslations() {
+        var pageTranslations = CatalogueDao.getPageTranslations();
+        var itemTranslations = CatalogueDao.getItemTranslations();
+
+        for (CataloguePage page : this.cataloguePageList) {
+            var byLocale = pageTranslations.get(page.getId());
+
+            if (byLocale == null) {
+                continue;
+            }
+
+            Map<String, CataloguePage.Text> texts = new HashMap<>();
+
+            for (var entry : byLocale.entrySet()) {
+                if (entry.getKey().equals(LocaleUtil.DEFAULT_LOCALE)) {
+                    continue;
+                }
+
+                String[] c = entry.getValue();
+                try {
+                    texts.put(entry.getKey(), page.translate(c[0], c[1], c[2], c[3], c[4]));
+                } catch (RuntimeException e) {
+                    Log.getErrorLogger().warn("Invalid {} translation for catalogue page {}: {}", entry.getKey(), page.getId(), e.getMessage());
+                }
+            }
+
+            page.setTranslations(texts);
+        }
+
+        for (CatalogueItem item : this.catalogueItemList) {
+            var byLocale = itemTranslations.get(item.getId());
+
+            if (byLocale == null) {
+                continue;
+            }
+
+            Map<String, String[]> texts = new HashMap<>(byLocale);
+            texts.remove(LocaleUtil.DEFAULT_LOCALE);
+            item.setTranslations(texts);
+        }
     }
 
     public List<Item> purchase(Player player, CatalogueItem item, String extraData, String overrideName, long timestamp) throws SQLException {
@@ -317,18 +368,31 @@ public class CatalogueManager {
      * @return the catalogue manager instance
      */
     public static CatalogueManager getInstance() {
-        if (instance == null) {
-            instance = new CatalogueManager();
+        CatalogueManager current = instance;
+
+        if (current == null) {
+            synchronized (CatalogueManager.class) {
+                current = instance;
+
+                if (current == null) {
+                    current = new CatalogueManager();
+                    instance = current;
+                }
+            }
         }
 
-        return instance;
+        return current;
     }
 
     /**
      * Resets the catalogue manager singleton.
      */
     public static void reset() {
-        instance = null;
-        CatalogueManager.getInstance();
+        // Build the whole new manager first, then publish it atomically (no null window).
+        CatalogueManager fresh = new CatalogueManager();
+
+        synchronized (CatalogueManager.class) {
+            instance = fresh;
+        }
     }
 }

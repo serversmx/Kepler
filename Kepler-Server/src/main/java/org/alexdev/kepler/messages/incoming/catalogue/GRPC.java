@@ -39,7 +39,8 @@ public class GRPC implements MessageEvent {
 
         String saleCode = data[3];
 
-        CatalogueItem item = CatalogueManager.getInstance().getCatalogueItem(saleCode);
+        CatalogueManager catalogue = CatalogueManager.getInstance();
+        CatalogueItem item = catalogue.getCatalogueItem(saleCode);
 
         if (item == null) {
             player.send(new PURCHASE_ERROR());
@@ -56,7 +57,7 @@ public class GRPC implements MessageEvent {
                 (item.getSaleCode() != null && item.getSaleCode().equals(currentRare.getSaleCode())));
         // v14 sends the page index in the second CR-delimited field. The daily
         // rare is sold through its public display page, not its staff pool page.
-        CataloguePage page = CatalogueManager.getInstance().getCataloguePage(data[1]);
+        CataloguePage page = catalogue.getCataloguePage(data[1]);
         boolean displayedRare = isCurrentRare && page != null &&
                 page.getId() == GameConfiguration.getInstance().getInteger("rare.cycle.page.id");
         if (page == null || (!item.hasPage(page.getId()) && !displayedRare) ||
@@ -147,7 +148,7 @@ public class GRPC implements MessageEvent {
             }
 
             // The transaction log must hold what is really charged (the rare cycle price), not the catalogue price.
-            if (CatalogueManager.getInstance().purchase(player, item, extraData, null, DateUtil.getCurrentTimeSeconds(), price).size() > 0) {
+            if (catalogue.purchase(player, item, extraData, null, DateUtil.getCurrentTimeSeconds(), price).size() > 0) {
                 player.getInventory().getView("new");
             }
 

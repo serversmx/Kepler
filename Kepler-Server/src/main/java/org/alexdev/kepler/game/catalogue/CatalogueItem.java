@@ -4,9 +4,11 @@ import org.alexdev.kepler.game.item.base.ItemBehaviour;
 import org.alexdev.kepler.game.item.base.ItemDefinition;
 import org.alexdev.kepler.game.item.ItemManager;
 import org.alexdev.kepler.log.Log;
+import org.alexdev.kepler.util.LocaleUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CatalogueItem {
     private String saleCode;
@@ -25,6 +27,30 @@ public class CatalogueItem {
     private String packageDescription;
     private boolean isPackage;
     private int id;
+    private volatile Map<String, String[]> translations = Map.of();
+
+    /**
+     * Name in the locale; falls back to the Spanish name when not translated.
+     */
+    public String getName(String locale) {
+        String[] t = this.translations.get(locale);
+        return t == null ? this.getName() : LocaleUtil.pick(t[0], this.getName());
+    }
+
+    /**
+     * Description in the locale; falls back to the Spanish description when not translated.
+     */
+    public String getDescription(String locale) {
+        String[] t = this.translations.get(locale);
+        return t == null ? this.getDescription() : LocaleUtil.pick(t[1], this.getDescription());
+    }
+
+    /**
+     * Publish the translations (locale -> {name, description}). Call before sharing the item.
+     */
+    public void setTranslations(Map<String, String[]> translations) {
+        this.translations = Map.copyOf(translations);
+    }
 
     public CatalogueItem(int id, String saleCode, String pageId, int orderId, int price, boolean hidden, int definitionId, int itemSpecialId, String name, String description, boolean isPackage, String packageName, String packageDescription) {
         int[] pages = new int[pageId.split(",").length];
@@ -157,7 +183,9 @@ public class CatalogueItem {
      * @return the new catalogue item instance
      */
     public CatalogueItem copy() {
-        return new CatalogueItem(this.id, this.saleCode, this.pages, this.orderId, this.price, this.isHidden, this.definition.getId(), this.itemSpecialId, this.name, this.description, this.isPackage, this.packageName, this.packageDescription);
+        CatalogueItem copy = new CatalogueItem(this.id, this.saleCode, this.pages, this.orderId, this.price, this.isHidden, this.definition.getId(), this.itemSpecialId, this.name, this.description, this.isPackage, this.packageName, this.packageDescription);
+        copy.translations = this.translations;
+        return copy;
     }
 
     public boolean isHidden() {

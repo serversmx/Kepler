@@ -705,5 +705,12 @@ public class PlayerDao {
                 row.getBoolean("allow_friend_requests"), row.getBoolean("sound_enabled"),
                 row.getBoolean("tutorial_finished"), row.getInt("battleball_points"),
                 row.getInt("snowstorm_points"));
+
+        try {
+            details.setLocale(row.getString("user_language"));
+        } catch (SQLException ignored) {
+            // Column not present in this schema: Spanish.
+            details.setLocale(null);
+        }
     }
 }

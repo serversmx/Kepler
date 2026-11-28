@@ -6,6 +6,7 @@ import org.alexdev.kepler.dao.mysql.PlayerDao;
 import org.alexdev.kepler.game.ban.BanType;
 import org.alexdev.kepler.game.games.enums.GameType;
 import org.alexdev.kepler.util.DateUtil;
+import org.alexdev.kepler.util.LocaleUtil;
 import org.alexdev.kepler.util.StringUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,7 +60,23 @@ public class PlayerDetails {
     private int snowstormPoints;
     private int battleballPoints;
 
+    private volatile String locale = LocaleUtil.DEFAULT_LOCALE;
+
     public PlayerDetails() {
+    }
+
+    /**
+     * Get the normalised language of the player ("es", "en" or "pt").
+     */
+    public String getLocale() {
+        return this.locale;
+    }
+
+    /**
+     * Set the language from the raw users.user_language value; it is normalised.
+     */
+    public void setLocale(String rawLocale) {
+        this.locale = LocaleUtil.normalize(rawLocale);
     }
 
     /**

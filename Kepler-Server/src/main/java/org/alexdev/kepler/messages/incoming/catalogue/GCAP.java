@@ -10,6 +10,7 @@ import org.alexdev.kepler.messages.outgoing.catalogue.CATALOGUE_PAGE;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.alexdev.kepler.util.DateUtil;
+import org.alexdev.kepler.util.LocaleUtil;
 import org.alexdev.kepler.util.config.GameConfiguration;
 
 import java.util.List;
@@ -20,7 +21,8 @@ public class GCAP implements MessageEvent {
     public void handle(Player player, NettyRequest reader) {
         String pageName = reader.contents().split("/")[1];
 
-        CataloguePage cataloguePage = CatalogueManager.getInstance().getCataloguePage(pageName);
+        CatalogueManager catalogue = CatalogueManager.getInstance();
+        CataloguePage cataloguePage = catalogue.getCataloguePage(pageName);
 
         if (cataloguePage == null || player.getDetails().getRank().getRankId() < cataloguePage.getMinRole().getRankId()) {
             // A valid, empty page reaches ChangeWindowView -> hideLoadingScreen.
@@ -28,12 +30,15 @@ public class GCAP implements MessageEvent {
             CataloguePage unavailable = new CataloguePage(0, PlayerRank.NORMAL, false, false,
                     pageName, "", "Pagina no disponible", "ctlg_layout1", "", "",
                     "Esta pagina no esta disponible.", "", "", "");
-            player.send(new CATALOGUE_PAGE(unavailable, List.of()));
+            player.send(new CATALOGUE_PAGE(unavailable, List.of(), player.getDetails().getLocale()));
             return;
         }
 
         if (player.getDetails().getRank().getRankId() >= cataloguePage.getMinRole().getRankId()) {
-            List<CatalogueItem> catalogueItemList = CatalogueManager.getInstance().getCataloguePageItems(cataloguePage.getId());
+            List<CatalogueItem> catalogueItemList = catalogue.getCataloguePageItems(cataloguePage.getId());
+
+            String locale = player.getDetails().getLocale();
+            String bodyOverride = null;
 
             var rareSnapshot = RareManager.getInstance().getSnapshot();
 
@@ -52,13 +57,29 @@ public class GCAP implements MessageEvent {
                 long currentTick = RareManager.getInstance().getTick().get();
                 long timeUntil = interval - currentTick;
 
-                cataloguePage.setBody(GameConfiguration.getInstance().getString("rare.cycle.page.text").replace("{rareCountdown}", DateUtil.getReadableSeconds(timeUntil)));
+                // Never mutate the shared page: other players read it concurrently in other languages.
+                bodyOverride = getRarePageText(locale).replace("{rareCountdown}", DateUtil.getReadableSeconds(timeUntil, locale));
             }
 
             //Ai:Recycler{13}n:Recycler{13}l:ctlg_recycler{13}g:catalog_recycler_headline1{13}{1}
             player.send(new CATALOGUE_PAGE(
                     cataloguePage,
-                    catalogueItemList));
+                    catalogueItemList,
+                    locale,
+                    bodyOverride));
         }
+    }
+
+    /**
+     * Rare cycle page text for the locale: rare.cycle.page.text.&lt;locale&gt;, falling back to the Spanish setting.
+     */
+    static String getRarePageText(String locale) {
+        String spanish = GameConfiguration.getInstance().getString("rare.cycle.page.text");
+
+        if (locale == null || locale.equals(LocaleUtil.DEFAULT_LOCALE)) {
+            return spanish;
+        }
+
+        return LocaleUtil.pick(GameConfiguration.getInstance().getString("rare.cycle.page.text." + locale, ""), spanish);
     }
 }

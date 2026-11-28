@@ -10,8 +10,10 @@ import org.alexdev.kepler.server.netty.streams.NettyRequest;
 public class GCIX implements MessageEvent {
     @Override
     public void handle(Player player, NettyRequest reader) {
+        CatalogueManager catalogue = CatalogueManager.getInstance();
         player.send(new CATALOGUE_PAGES(
-                CatalogueManager.getInstance().getPagesForRank(player.getDetails().getRank(), player.getDetails().hasClubSubscription())
+                catalogue.getPagesForRank(player.getDetails().getRank(), player.getDetails().hasClubSubscription()),
+                player.getDetails().getLocale()
         ));
     }
 }

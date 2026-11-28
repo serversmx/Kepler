@@ -1,6 +1,7 @@
 package org.alexdev.kepler.game.commands.registered;
 
 import org.alexdev.kepler.game.catalogue.CatalogueManager;
+import org.alexdev.kepler.game.catalogue.RareManager;
 import org.alexdev.kepler.game.commands.Command;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
@@ -46,6 +47,7 @@ public class ReloadCommand extends Command {
                 || component.equalsIgnoreCase("items")) {
             ItemManager.reset();
             CatalogueManager.reset();
+            RareManager.getInstance().reload();
 
             // Regenerate collision map with proper height differences (if they changed).
             player.getRoomUser().getRoom().getMapping().regenerateCollisionMap();
@@ -53,7 +55,8 @@ public class ReloadCommand extends Command {
             // Resend the catalogue index every 15 minutes to clear page cache
             for (Player p : PlayerManager.getInstance().getPlayers()) {
                 p.send(new CATALOGUE_PAGES(
-                        CatalogueManager.getInstance().getPagesForRank(p.getDetails().getRank(), p.getDetails().hasClubSubscription())
+                        CatalogueManager.getInstance().getPagesForRank(p.getDetails().getRank(), p.getDetails().hasClubSubscription()),
+                        p.getDetails().getLocale()
                 ));
             }
 
