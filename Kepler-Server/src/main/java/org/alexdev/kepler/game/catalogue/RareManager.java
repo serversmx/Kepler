@@ -153,6 +153,14 @@ public class RareManager {
      * @return the amount of rareCost
      */
     public int getHandoutAmountInHours(int hours) {
+        // Rare prices are fixed in credits per hour of play, independent of the
+        // online credits handout, so changing the handout never reprices rares.
+        int creditsPerHour = GameConfiguration.getInstance().getInteger("rare.cycle.credits.per.hour");
+
+        if (creditsPerHour > 0) {
+            return hours * creditsPerHour;
+        }
+
         TimeUnit unit = TimeUnit.valueOf(GameConfiguration.getInstance().getString("credits.scheduler.timeunit"));
         long interval = unit.toMinutes(GameConfiguration.getInstance().getInteger("credits.scheduler.interval"));
 

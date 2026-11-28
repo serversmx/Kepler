@@ -99,6 +99,9 @@ public class GameConfigWriter implements ConfigWriter {
         config.put("rare.cycle.page.text", "Okay this thing is fucking epic!<br><br>The time until the next rare is {rareCountdown}!");
         config.put("rare.cycle.tick.time", "0");
         config.put("rare.cycle.page.id", "2");
+        // Credits per hour of play used to price the rare cycle (rares cost N hours of this).
+        // 80 = the old handout of 20 credits every 15 minutes, so prices did not change.
+        config.put("rare.cycle.credits.per.hour", "80");
         config.put("rare.cycle.refresh.timeunit", "DAYS");
         config.put("rare.cycle.refresh.interval", "1");
 
