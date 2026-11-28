@@ -48,7 +48,9 @@ public class GRPC implements MessageEvent {
 
         int price = item.getPrice();
 
-        var currentRare = RareManager.getInstance().getCurrentRare();
+        // One read of rare + price table: a rotation or reload can't swap one under the other.
+        var rareSnapshot = RareManager.getInstance().getSnapshot();
+        var currentRare = rareSnapshot.getRare();
         // Compare by sale code: a catalogue reload replaces the item instances.
         boolean isCurrentRare = currentRare != null && (currentRare == item ||
                 (item.getSaleCode() != null && item.getSaleCode().equals(currentRare.getSaleCode())));
@@ -69,7 +71,15 @@ public class GRPC implements MessageEvent {
 
         if (isCurrentRare) {
             if (!player.hasFuse(Fuseright.CREDITS)) {
-                price = RareManager.getInstance().getRareCost().get(currentRare);
+                Integer rarePrice = rareSnapshot.getPrice();
+
+                // A rare without a price can't be sold (its page left rare.cycle.pages).
+                if (rarePrice == null) {
+                    player.send(new PURCHASE_ERROR());
+                    return;
+                }
+
+                price = rarePrice;
             }
         }
 
@@ -136,7 +146,8 @@ public class GRPC implements MessageEvent {
                 extraData = data[4];
             }
 
-            if (CatalogueManager.getInstance().purchase(player, item, extraData, null, DateUtil.getCurrentTimeSeconds()).size() > 0) {
+            // The transaction log must hold what is really charged (the rare cycle price), not the catalogue price.
+            if (CatalogueManager.getInstance().purchase(player, item, extraData, null, DateUtil.getCurrentTimeSeconds(), price).size() > 0) {
                 player.getInventory().getView("new");
             }
 

@@ -34,6 +34,14 @@ public class CatalogueManager {
     }
 
     public List<Item> purchase(Player player, CatalogueItem item, String extraData, String overrideName, long timestamp) throws SQLException {
+        return this.purchase(player, item, extraData, overrideName, timestamp, item.getPrice());
+    }
+
+    /**
+     * @param chargedPrice the credits actually charged, written to the transaction log
+     *                     (the rare of the day costs more or less than its catalogue price)
+     */
+    public List<Item> purchase(Player player, CatalogueItem item, String extraData, String overrideName, long timestamp, int chargedPrice) throws SQLException {
         List<Item> itemsBought = new ArrayList<>();
 
         if (!item.isPackage()) {
@@ -72,7 +80,7 @@ public class CatalogueManager {
                 player.getDetails().getId(),
                 "catalogue_purchase",
                 "Compra catalogo: " + item.getSaleCode(),
-                -item.getPrice(),
+                -chargedPrice,
                 itemNames.toString()
             );
         }

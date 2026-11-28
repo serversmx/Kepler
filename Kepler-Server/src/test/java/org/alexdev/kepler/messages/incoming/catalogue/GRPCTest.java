@@ -30,6 +30,7 @@ class GRPCTest {
         catalogueStatic.when(CatalogueManager::getInstance).thenReturn(catalogue);
         rareStatic.when(RareManager::getInstance).thenReturn(rares);
         configStatic.when(GameConfiguration::getInstance).thenReturn(config);
+        when(rares.getSnapshot()).thenReturn(new RareManager.RareSnapshot(null, java.util.Map.of()));
         when(player.getDetails()).thenReturn(details);
         when(details.getRank()).thenReturn(PlayerRank.NORMAL);
         when(catalogue.getCatalogueItem("chair")).thenReturn(item);
@@ -91,19 +92,41 @@ class GRPCTest {
         Assertions.assertEquals(65, new PURCHASE_ERROR().getHeader());
     }
     @Test void currentRareUsesPublicDisplayPageAndPrice() throws Exception {
-        when(rares.getCurrentRare()).thenReturn(item);
+        when(rares.getSnapshot()).thenReturn(new RareManager.RareSnapshot(item, java.util.Map.of(item, 25)));
         when(item.hasPage(10)).thenReturn(false);
         when(config.getInteger("rare.cycle.page.id")).thenReturn(10);
-        when(rares.getRareCost()).thenReturn(java.util.Map.of(item, 25));
         when(details.getCredits()).thenReturn(20);
         buy();
         verify(player).send(isA(NO_CREDITS.class));
     }
     @Test void rareDisplayPageStillChecksRank() throws Exception {
-        when(rares.getCurrentRare()).thenReturn(item);
+        when(rares.getSnapshot()).thenReturn(new RareManager.RareSnapshot(item, java.util.Map.of(item, 25)));
         when(config.getInteger("rare.cycle.page.id")).thenReturn(10);
         when(page.getMinRole()).thenReturn(PlayerRank.ADMINISTRATOR);
         buy();
         verify(player).send(isA(PURCHASE_ERROR.class));
+    }
+    @Test void currentRareWithoutPriceIsNotPurchasable() throws Exception {
+        when(rares.getSnapshot()).thenReturn(new RareManager.RareSnapshot(item, java.util.Map.of()));
+        when(config.getInteger("rare.cycle.page.id")).thenReturn(10);
+        when(details.getCredits()).thenReturn(1000);
+        buy();
+        verify(player).send(isA(PURCHASE_ERROR.class));
+    }
+    @Test void transactionLogGetsTheChargedRarePriceNotTheCatalogueOne() throws Exception {
+        when(rares.getSnapshot()).thenReturn(new RareManager.RareSnapshot(item, java.util.Map.of(item, 25)));
+        when(config.getInteger("rare.cycle.page.id")).thenReturn(10);
+        when(details.getCredits()).thenReturn(1000);
+        when(catalogue.purchase(any(), any(), any(), any(), anyLong(), anyInt())).thenReturn(java.util.List.of());
+
+        NettyRequest request = mock(NettyRequest.class);
+        when(request.contents()).thenReturn("production\rPublic\ren\rchair\r\r0");
+        try (MockedStatic<CurrencyDao> currency = mockStatic(CurrencyDao.class)) {
+            new GRPC().handle(player, request);
+            currency.verify(() -> CurrencyDao.decreaseCredits(details, 25));
+        }
+
+        // catalogue price is 5, the rare cycle charges 25: the log must say 25
+        verify(catalogue).purchase(eq(player), eq(item), any(), isNull(), anyLong(), eq(25));
     }
 }

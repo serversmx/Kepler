@@ -19,7 +19,8 @@ public enum RconHeader {
     REFRESH_NAVIGATOR("refresh_navigator"),
     GIVE_BADGE("give_badge"),
     REMOVE_BADGE("remove_badge"),
-    USER_ALERT("user_alert");
+    USER_ALERT("user_alert"),
+    ROTATE_RARE("rotate_rare");
 
     private final String rawHeader;
 

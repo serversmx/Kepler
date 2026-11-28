@@ -35,13 +35,15 @@ public class GCAP implements MessageEvent {
         if (player.getDetails().getRank().getRankId() >= cataloguePage.getMinRole().getRankId()) {
             List<CatalogueItem> catalogueItemList = CatalogueManager.getInstance().getCataloguePageItems(cataloguePage.getId());
 
-            if (RareManager.getInstance().getCurrentRare() != null &&
+            var rareSnapshot = RareManager.getInstance().getSnapshot();
+
+            if (rareSnapshot.getRare() != null && rareSnapshot.getPrice() != null &&
                     cataloguePage.getId() == GameConfiguration.getInstance().getInteger("rare.cycle.page.id")) {
 
-                var currentRare = RareManager.getInstance().getCurrentRare();
+                var currentRare = rareSnapshot.getRare();
 
                 var rareItem = currentRare.copy();
-                rareItem.setPrice(RareManager.getInstance().getRareCost().get(currentRare));
+                rareItem.setPrice(rareSnapshot.getPrice());
                 catalogueItemList = List.of(rareItem);
 
                 TimeUnit rareManagerUnit = TimeUnit.valueOf(GameConfiguration.getInstance().getString("rare.cycle.refresh.timeunit"));

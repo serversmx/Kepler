@@ -12,6 +12,7 @@ import org.alexdev.kepler.log.Log;
 import org.alexdev.kepler.messages.outgoing.alert.ALERT;
 import org.alexdev.kepler.messages.outgoing.user.currencies.CREDIT_BALANCE;
 import org.alexdev.kepler.game.catalogue.CatalogueManager;
+import org.alexdev.kepler.game.catalogue.RareManager;
 import org.alexdev.kepler.game.navigator.NavigatorManager;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomManager;
@@ -174,11 +175,13 @@ public class RconConnectionHandler extends ChannelInboundHandlerAdapter {
 
                 case REFRESH_CATALOGUE:
                     CatalogueManager.reset();
+                    RareManager.getInstance().reload();
                     log.info("[RCON] Catalogue refreshed");
                     break;
 
                 case REFRESH_CATALOGUE_FRONTPAGE:
                     CatalogueManager.reset();
+                    RareManager.getInstance().reload();
                     log.info("[RCON] Catalogue frontpage refreshed");
                     break;
 
@@ -193,7 +196,15 @@ public class RconConnectionHandler extends ChannelInboundHandlerAdapter {
 
                 case REFRESH_GAME_SETTINGS:
                     GameConfiguration.reset(new GameConfigWriter());
+                    // Rare prices and pool are cached: recompute them with the new settings.
+                    RareManager.getInstance().reload();
                     log.info("[RCON] Game settings refreshed");
+                    break;
+
+                case ROTATE_RARE:
+                    // Force the next rare of the cycle now (same reuse rules as the timer).
+                    boolean rotated = RareManager.getInstance().selectNewRare();
+                    log.info("[RCON] Rare rotation requested, rotated={}", rotated);
                     break;
 
                 case MUTE_USER:
