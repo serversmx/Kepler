@@ -19,7 +19,6 @@ import org.alexdev.kepler.game.room.mapping.RoomMapping;
 import org.alexdev.kepler.game.room.models.RoomModel;
 import org.alexdev.kepler.game.room.models.RoomModelManager;
 import org.alexdev.kepler.messages.outgoing.messenger.ROOMFORWARD;
-import org.alexdev.kepler.messages.outgoing.rooms.UPDATE_VOTES;
 import org.alexdev.kepler.messages.outgoing.rooms.moderation.YOUARECONTROLLER;
 import org.alexdev.kepler.messages.outgoing.rooms.moderation.YOUAROWNER;
 import org.alexdev.kepler.messages.outgoing.rooms.moderation.YOUNOTCONTROLLER;
@@ -81,6 +80,10 @@ public class Room {
      */
     public void send(MessageComposer composer, List<Player> playerList) {
         for (Player player : this.roomEntityManager.getPlayers()) {
+            if (playerList.contains(player)) {
+                continue;
+            }
+
             player.send(composer);
         }
     }
@@ -160,15 +163,7 @@ public class Room {
         this.roomData.setRating(sum);
         RoomDao.saveRating(this.getId(), sum);
 
-        // Send new vote count to all player entities
-        for (Player p : this.roomEntityManager.getPlayers()) {
-            boolean voted = this.hasVoted(p.getDetails().getId());
-
-            // Only send new vote count to users who did vote
-            if (voted || this.isOwner(p.getDetails().getId())) {
-                p.send(new UPDATE_VOTES(this.roomData.getRating()));
-            }
-        }
+        // UPDATE_VOTES (345) is not sent: the v14 client registers no listener for it.
 
         RoomVoteDao.vote(userId, this.roomData.getId(), answer);
     }

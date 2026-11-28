@@ -7,7 +7,6 @@ import org.alexdev.kepler.game.pets.Pet;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomUserStatus;
-import org.alexdev.kepler.messages.outgoing.rooms.user.TYPING_STATUS;
 import org.alexdev.kepler.util.DateUtil;
 
 import java.util.ArrayList;
@@ -141,7 +140,6 @@ public class StatusTask implements Runnable {
 
             player.getRoomUser().setTyping(false);
             player.getRoomUser().getTimerManager().stopChatBubbleTimer();
-            player.getRoomUser().getRoom().send(new TYPING_STATUS(player.getRoomUser().getInstanceId(), false));
         }
     }
 

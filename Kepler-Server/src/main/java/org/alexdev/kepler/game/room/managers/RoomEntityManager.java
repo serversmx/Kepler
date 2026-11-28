@@ -8,7 +8,6 @@ import org.alexdev.kepler.game.GameScheduler;
 import org.alexdev.kepler.game.bot.BotManager;
 import org.alexdev.kepler.game.entity.Entity;
 import org.alexdev.kepler.game.entity.EntityType;
-import org.alexdev.kepler.game.events.EventsManager;
 import org.alexdev.kepler.game.games.player.GamePlayer;
 import org.alexdev.kepler.game.item.Item;
 import org.alexdev.kepler.game.item.interactors.types.TeleportInteractor;
@@ -20,11 +19,8 @@ import org.alexdev.kepler.game.polls.PollManager;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.game.room.RoomManager;
 import org.alexdev.kepler.game.room.mapping.RoomTile;
-import org.alexdev.kepler.messages.outgoing.events.ROOMEEVENT_INFO;
 import org.alexdev.kepler.messages.outgoing.rooms.FLATPROPERTY;
 import org.alexdev.kepler.messages.outgoing.rooms.ROOM_READY;
-import org.alexdev.kepler.messages.outgoing.rooms.ROOM_URL;
-import org.alexdev.kepler.messages.outgoing.rooms.UPDATE_VOTES;
 import org.alexdev.kepler.messages.outgoing.rooms.items.BROADCAST_TELEPORTER;
 import org.alexdev.kepler.messages.outgoing.rooms.user.HOTEL_VIEW;
 import org.alexdev.kepler.messages.outgoing.rooms.user.LOGOUT;
@@ -210,7 +206,8 @@ public class RoomEntityManager {
             player.getRoomUser().setAuthenticateTelporterId(-1);
         }
 
-        player.send(new ROOM_URL());
+        // ROOM_URL (166), UPDATE_VOTES (345) and ROOMEEVENT_INFO (370) are not sent on entry:
+        // the v14 client (Room_Handler_Class) registers no listener for them ("Listener not found").
         player.send(new ROOM_READY(this.room.getId(), this.room.getModel().getName()));
 
         if (this.room.getData().getWallpaper() > 0) {
@@ -221,17 +218,6 @@ public class RoomEntityManager {
             player.send(new FLATPROPERTY("floor", this.room.getData().getFloor()));
         }
 
-        // Don't let the room owner vote on it's own room
-        boolean voted = this.room.isOwner(player.getDetails().getId()) || this.room.hasVoted(player.getDetails().getId());
-
-        if (voted) {
-            player.send(new UPDATE_VOTES(this.room.getData().getRating()));
-        } else {
-            player.send(new UPDATE_VOTES(-1));
-        }
-
-        // Send room event information
-        player.send(new ROOMEEVENT_INFO(EventsManager.getInstance().getEventByRoomId(this.room.getId())));
         player.getMessenger().sendStatusUpdate();
 
         // Save increased visitor count of this room

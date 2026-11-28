@@ -5,7 +5,6 @@ import org.alexdev.kepler.game.events.Event;
 import org.alexdev.kepler.game.events.EventsManager;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.messages.outgoing.events.ROOMEEVENT_INFO;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.alexdev.kepler.util.StringUtil;
@@ -46,7 +45,7 @@ public class EDIT_ROOMEVENT implements MessageEvent {
         event.setName(name);
         event.setDescription(description);
 
-        room.send(new ROOMEEVENT_INFO(event));
+        // ROOMEEVENT_INFO (370) is not broadcast: the v14 client registers no listener for it.
         EventsDao.save(event);
     }
 }

@@ -4,7 +4,6 @@ import org.alexdev.kepler.game.commands.CommandManager;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
 import org.alexdev.kepler.messages.outgoing.rooms.user.CHAT_MESSAGE;
-import org.alexdev.kepler.messages.outgoing.rooms.user.TYPING_STATUS;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 import org.alexdev.kepler.util.StringUtil;
@@ -20,10 +19,8 @@ public class CHAT implements MessageEvent {
 
         String message = StringUtil.filterInput(reader.readString(), true);
 
-        if (player.getRoomUser().isTyping()) {
-            player.getRoomUser().setTyping(false);
-            room.send(new TYPING_STATUS(player.getRoomUser().getInstanceId(), player.getRoomUser().isTyping()));
-        }
+        // TYPING_STATUS (361) is not sent: the v14 client registers no listener for it.
+        player.getRoomUser().setTyping(false);
 
         if (message.isEmpty()) {
             return;

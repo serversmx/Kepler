@@ -4,7 +4,6 @@ import org.alexdev.kepler.game.events.Event;
 import org.alexdev.kepler.game.events.EventsManager;
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.messages.outgoing.events.ROOMEEVENT_INFO;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 
@@ -31,7 +30,7 @@ public class QUIT_ROOMEVENT implements MessageEvent {
             return;
         }
 
+        // ROOMEEVENT_INFO (370) is not broadcast: the v14 client registers no listener for it.
         EventsManager.getInstance().removeEvent(event);
-        room.send(new ROOMEEVENT_INFO(null));
     }
 }

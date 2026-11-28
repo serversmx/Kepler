@@ -2,7 +2,6 @@ package org.alexdev.kepler.messages.incoming.rooms.user;
 
 import org.alexdev.kepler.game.player.Player;
 import org.alexdev.kepler.game.room.Room;
-import org.alexdev.kepler.messages.outgoing.rooms.user.TYPING_STATUS;
 import org.alexdev.kepler.messages.types.MessageEvent;
 import org.alexdev.kepler.server.netty.streams.NettyRequest;
 
@@ -23,7 +22,6 @@ public class USER_START_TYPING implements MessageEvent {
 
         player.getRoomUser().getTimerManager().beginChatBubbleTimer();
         player.getRoomUser().setTyping(true);
-
-        room.send(new TYPING_STATUS(player.getRoomUser().getInstanceId(), player.getRoomUser().isTyping()));
+        // TYPING_STATUS (361) is not sent: the v14 client registers no listener for it.
     }
 }

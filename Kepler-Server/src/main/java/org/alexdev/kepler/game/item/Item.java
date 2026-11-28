@@ -323,13 +323,14 @@ public class Item {
                 response.writeDelimeter(this.id, (char) 9);
                 response.writeDelimeter(definition.getSprite(), (char) 9);
                 response.writeDelimeter(" ", (char) 9);
-                response.writeDelimeter(this.wallPosition, (char) 9);
+                response.writeDelimeter(wallItemField(this.wallPosition), (char) 9);
 
-                if (this.customData.length() > 0) {
+                if (this.customData != null && this.customData.length() > 0) {
                     if (this.hasBehaviour(ItemBehaviour.POST_IT)) {
-                        response.write(this.customData.substring(0, 6)); // Only show post-it colour
+                        // Only show post-it colour
+                        response.write(wallItemField(this.customData.substring(0, Math.min(6, this.customData.length()))));
                     } else {
-                        response.write(this.customData);
+                        response.write(wallItemField(this.customData));
                     }
                 }
 
@@ -360,6 +361,22 @@ public class Item {
 
             }
         }
+    }
+
+    /**
+     * Make a value safe for one field of a wall item line (ITEMS 45 / PLACE_WALLITEM 83).
+     *
+     * Room_Handler_Class.handle_items splits the message on RETURN (one item per line) and each line on TAB.
+     * Photos store "date time" + CR + caption, so the caption became a line of its own and the client tried to
+     * create an item whose id was the caption ("Failed to define room object: [#id: "HabboP", ...]").
+     * The caption itself is read through G_IDATA/IDATA, which keeps the original CR.
+     */
+    static String wallItemField(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ');
     }
 
     /**
