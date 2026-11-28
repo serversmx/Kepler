@@ -109,24 +109,32 @@ public class DateUtil {
      * @return the seconds represented as words
      */
     public static String getReadableSeconds(long input) {
-        long numberOfDays = 0;
-        long numberOfHours = 0;
-        long numberOfMinutes = 0;
-        long numberOfSeconds = 0;
+        // Spanish without accents: the v14 catalogue bitmap fonts cannot draw them.
+        long seconds = Math.max(0, input);
+        long days = seconds / 86400;
+        long hours = (seconds % 86400) / 3600;
+        long minutes = (seconds % 3600) / 60;
 
-        try {
-            numberOfDays = input / 86400;
-            numberOfHours = (input % 86400 ) / 3600 ;
-            numberOfMinutes = ((input % 86400 ) % 3600 ) / 60;
-            numberOfSeconds = ((input % 86400 ) % 3600 ) % 60  ;
-        } catch (Exception e){
-            Log.getErrorLogger().error("Error occurred: ", e);
+        java.util.List<String> parts = new java.util.ArrayList<>();
+
+        if (days > 0) {
+            parts.add(days + (days == 1 ? " dia" : " dias"));
         }
 
+        if (hours > 0) {
+            parts.add(hours + (hours == 1 ? " hora" : " horas"));
+        }
 
-        return numberOfDays + " days, " + numberOfHours + " hours, " + numberOfMinutes + " minutes, " + numberOfSeconds + " seconds";
+        if (minutes > 0 || parts.isEmpty()) {
+            parts.add(minutes + (minutes == 1 ? " minuto" : " minutos"));
+        }
+
+        if (parts.size() == 1) {
+            return parts.get(0);
+        }
+
+        return String.join(", ", parts.subList(0, parts.size() - 1)) + " y " + parts.get(parts.size() - 1);
     }
-
 
 
     /**

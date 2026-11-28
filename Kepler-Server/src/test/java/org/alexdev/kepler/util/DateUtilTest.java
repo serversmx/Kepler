@@ -5,47 +5,33 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * getReadableSeconds breaks a second count into days/hours/minutes/seconds and
- * formats it as a fixed English sentence. The breakdown is pure integer math
- * (no clock), so the boundaries between units are what matter.
+ * getReadableSeconds formats the rare cycle countdown shown in the catalogue:
+ * Spanish without accents (the v14 catalogue bitmap fonts cannot draw them),
+ * zero units skipped, seconds dropped, "y" before the last part.
  */
 class DateUtilTest {
 
     @Test
-    void zeroSecondsReadsAsAllZeroUnits() {
-        assertThat(DateUtil.getReadableSeconds(0))
-                .isEqualTo("0 days, 0 hours, 0 minutes, 0 seconds");
+    void zeroAndSecondsBelowAMinuteReadAsZeroMinutes() {
+        assertThat(DateUtil.getReadableSeconds(0)).isEqualTo("0 minutos");
+        assertThat(DateUtil.getReadableSeconds(59)).isEqualTo("0 minutos");
+        assertThat(DateUtil.getReadableSeconds(-10)).isEqualTo("0 minutos");
     }
 
     @Test
-    void secondsBelowAMinuteStayInTheSecondsField() {
-        assertThat(DateUtil.getReadableSeconds(59))
-                .isEqualTo("0 days, 0 hours, 0 minutes, 59 seconds");
+    void singularAndPluralUnitsJoinedWithY() {
+        assertThat(DateUtil.getReadableSeconds(86400 + 3600 + 60 + 1)).isEqualTo("1 dia, 1 hora y 1 minuto");
+        assertThat(DateUtil.getReadableSeconds(2 * 86400 + 13 * 3600 + 8 * 60 + 30)).isEqualTo("2 dias, 13 horas y 8 minutos");
     }
 
     @Test
-    void carriesIntoEveryUnit() {
-        // 1 day + 1 hour + 1 minute + 1 second.
-        long input = 86400 + 3600 + 60 + 1;
-
-        assertThat(DateUtil.getReadableSeconds(input))
-                .isEqualTo("1 days, 1 hours, 1 minutes, 1 seconds");
-    }
-
-    @Test
-    void wholeUnitsLeaveTheLowerFieldsAtZero() {
-        assertThat(DateUtil.getReadableSeconds(2 * 86400))
-                .isEqualTo("2 days, 0 hours, 0 minutes, 0 seconds");
-        assertThat(DateUtil.getReadableSeconds(3600))
-                .isEqualTo("0 days, 1 hours, 0 minutes, 0 seconds");
+    void wholeUnitsSkipTheZeroFields() {
+        assertThat(DateUtil.getReadableSeconds(2 * 86400)).isEqualTo("2 dias");
+        assertThat(DateUtil.getReadableSeconds(3 * 3600)).isEqualTo("3 horas");
     }
 
     @Test
     void hoursDoNotOverflowIntoDaysBelowAFullDay() {
-        // 23h59m59s is still 0 days.
-        long input = 23 * 3600 + 59 * 60 + 59;
-
-        assertThat(DateUtil.getReadableSeconds(input))
-                .isEqualTo("0 days, 23 hours, 59 minutes, 59 seconds");
+        assertThat(DateUtil.getReadableSeconds(86399)).isEqualTo("23 horas y 59 minutos");
     }
 }

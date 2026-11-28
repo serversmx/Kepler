@@ -96,7 +96,7 @@ public class GameConfigWriter implements ConfigWriter {
 
         config.put("navigator.show.hidden.rooms", "false");
 
-        config.put("rare.cycle.page.text", "Okay this thing is fucking epic!<br><br>The time until the next rare is {rareCountdown}!");
+        config.put("rare.cycle.page.text", "El raro del momento! Consiguelo antes de que cambie.<br><br>El proximo raro llega en {rareCountdown}.");
         config.put("rare.cycle.tick.time", "0");
         // Sale code of the rare on sale (written by RareManager, read by the CMS).
         config.put("rare.cycle.current", "");
